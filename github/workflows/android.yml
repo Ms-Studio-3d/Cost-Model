@@ -1,4 +1,4 @@
-name: Android Build
+name: Android Build From Source Only
 
 on:
   push:
@@ -13,31 +13,77 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Java
+      - name: Set up Java 17
         uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '17'
+          java-version: "17"
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
 
-      - name: Install dependencies
+      - name: Show Flutter version
+        run: flutter --version
+
+      - name: Create temporary Flutter project
+        run: |
+          flutter create temp_app \
+            --platforms=android \
+            --org com.msstudio \
+            --project-name cost_model
+
+      - name: Replace generated source with repository source
+        run: |
+          rm -rf temp_app/lib
+          mkdir -p temp_app/lib
+          rsync -av lib/ temp_app/lib/
+
+          if [ -f pubspec.yaml ]; then
+            cp pubspec.yaml temp_app/pubspec.yaml
+          fi
+
+          if [ -d assets ]; then
+            rm -rf temp_app/assets
+            mkdir -p temp_app/assets
+            rsync -av assets/ temp_app/assets/
+          fi
+
+          rm -rf temp_app/test
+          if [ -d test ]; then
+            mkdir -p temp_app/test
+            rsync -av test/ temp_app/test/
+          fi
+
+          if [ -f analysis_options.yaml ]; then
+            cp analysis_options.yaml temp_app/analysis_options.yaml
+          fi
+
+      - name: Get dependencies
+        working-directory: temp_app
         run: flutter pub get
 
       - name: Analyze project
+        working-directory: temp_app
         run: flutter analyze
 
-      - name: Run tests
-        run: flutter test
+      - name: Run tests if present
+        working-directory: temp_app
+        run: |
+          if [ -d test ] && [ "$(find test -type f | wc -l)" -gt 0 ]; then
+            flutter test
+          else
+            echo "No test files found, skipping tests."
+          fi
 
-      - name: Build APK
+      - name: Build release APK
+        working-directory: temp_app
         run: flutter build apk --release
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: cost-model-apk
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: temp_app/build/app/outputs/flutter-apk/app-release.apk
