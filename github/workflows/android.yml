@@ -52,6 +52,7 @@ jobs:
           fi
 
           rm -rf temp_app/test
+
           if [ -d test ]; then
             mkdir -p temp_app/test
             rsync -av test/ temp_app/test/
@@ -60,6 +61,10 @@ jobs:
           if [ -f analysis_options.yaml ]; then
             cp analysis_options.yaml temp_app/analysis_options.yaml
           fi
+
+      - name: Remove generated default widget test if present
+        run: |
+          rm -f temp_app/test/widget_test.dart
 
       - name: Get dependencies
         working-directory: temp_app
