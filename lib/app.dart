@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-
-import 'core/theme/app_theme.dart';
-import 'features/home/presentation/pages/home_page.dart';
+import 'package:cost_model/core/theme/app_theme.dart';
+import 'package:cost_model/features/home/presentation/pages/home_page.dart';
 
 class CostModelApp extends StatelessWidget {
   const CostModelApp({super.key});
