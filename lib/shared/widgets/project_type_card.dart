@@ -55,6 +55,7 @@ class ProjectTypeCard extends StatelessWidget {
                       description,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: const Color(0xFF6B7280),
+                        height: 1.35,
                       ),
                     ),
                   ],
