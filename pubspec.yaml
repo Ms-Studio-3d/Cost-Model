@@ -1,6 +1,7 @@
 name: cost_model
-version: 1.0.0+1
+description: Cost Model mobile app
 publish_to: none
+version: 1.0.0+1
 
 environment:
   sdk: ">=3.3.0 <4.0.0"
