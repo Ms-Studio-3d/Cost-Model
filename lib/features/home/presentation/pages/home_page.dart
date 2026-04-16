@@ -1,14 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:cost_model/core/constants/app_strings.dart';
+import 'package:cost_model/features/buildings/presentation/pages/buildings_setup_page.dart';
 import 'package:cost_model/shared/widgets/project_type_card.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
+  void _openBuildings(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const BuildingsSetupPage(),
+      ),
+    );
+  }
+
   void _showComingSoon(BuildContext context, String projectType) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('$projectType screen is coming next.'),
+        content: Text('$projectType module will be added next.'),
       ),
     );
   }
@@ -45,7 +54,7 @@ class HomePage extends StatelessWidget {
               description:
                   'Create a pricing scenario for building disciplines and phases.',
               icon: Icons.apartment_rounded,
-              onTap: () => _showComingSoon(context, AppStrings.buildings),
+              onTap: () => _openBuildings(context),
             ),
             ProjectTypeCard(
               title: AppStrings.masterPlan,
