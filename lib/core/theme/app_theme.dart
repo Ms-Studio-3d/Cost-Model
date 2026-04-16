@@ -11,7 +11,7 @@ class AppTheme {
       colorScheme: ColorScheme.fromSeed(seedColor: seedColor),
       scaffoldBackgroundColor: const Color(0xFFF7F8FA),
       appBarTheme: const AppBarTheme(
-        centerTitle: true,
+        centerTitle: false,
         elevation: 0,
         backgroundColor: Colors.transparent,
         foregroundColor: Color(0xFF111827),
@@ -27,6 +27,7 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: Colors.white,
+        labelStyle: const TextStyle(color: Color(0xFF6B7280)),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
           borderSide: const BorderSide(color: Color(0xFFD1D5DB)),
@@ -42,6 +43,14 @@ class AppTheme {
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 14,
+        ),
+      ),
+      elevatedButtonTheme: ElevatedButtonThemeData(
+        style: ElevatedButton.styleFrom(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          padding: const EdgeInsets.symmetric(vertical: 14),
         ),
       ),
     );
