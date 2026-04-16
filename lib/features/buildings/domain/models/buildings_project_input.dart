@@ -20,23 +20,4 @@ class BuildingsProjectInput {
   final double profitMargin;
   final double otherExpenses;
   final String currency;
-
-  double get assumedRatePerSqm {
-    switch (category) {
-      case 'A':
-        return 1.10;
-      case 'B':
-        return 0.82;
-      case 'C':
-      default:
-        return 0.58;
-    }
-  }
-
-  double get plannedHours => builtUpArea * assumedRatePerSqm;
-
-  double get estimatedCost => plannedHours * 325;
-
-  double get estimatedPrice =>
-      estimatedCost + (estimatedCost * (profitMargin / 100)) + otherExpenses;
 }
