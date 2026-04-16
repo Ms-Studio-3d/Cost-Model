@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-
-import '../../../../core/constants/app_strings.dart';
-import '../../../../shared/widgets/project_type_card.dart';
+import 'package:cost_model/core/constants/app_strings.dart';
+import 'package:cost_model/shared/widgets/project_type_card.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
