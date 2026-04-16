@@ -27,8 +27,8 @@ class ProjectTypeCard extends StatelessWidget {
           child: Row(
             children: [
               Container(
-                width: 52,
-                height: 52,
+                width: 56,
+                height: 56,
                 decoration: BoxDecoration(
                   color: theme.colorScheme.primary.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(16),
@@ -36,6 +36,7 @@ class ProjectTypeCard extends StatelessWidget {
                 child: Icon(
                   icon,
                   color: theme.colorScheme.primary,
+                  size: 28,
                 ),
               ),
               const SizedBox(width: 16),
