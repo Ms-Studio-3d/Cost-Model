@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
-void main() {
-  runApp(const CostModelApp());
-}
+import 'core/theme/app_theme.dart';
+import 'features/home/presentation/pages/home_page.dart';
 
 class CostModelApp extends StatelessWidget {
   const CostModelApp({super.key});
@@ -12,14 +11,8 @@ class CostModelApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Cost Model',
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Cost Model'),
-        ),
-        body: const Center(
-          child: Text('Starter app is working'),
-        ),
-      ),
+      theme: AppTheme.lightTheme,
+      home: const HomePage(),
     );
   }
 }
