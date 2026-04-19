@@ -16,6 +16,13 @@ class BuildingRateEngine {
   static const double productionShare = 0.85;
   static const double supportiveShare = 0.15;
 
+  static const double architectureShare = 0.29;
+  static const double structureShare = 0.22;
+  static const double electricalShare = 0.23;
+  static const double plumbingShare = 0.12;
+  static const double hvacShare = 0.14;
+  static const double qsShareFromArchAndStructure = 0.10;
+
   static const List<CurvePoint> _categoryA = [
     CurvePoint(area: 5000, rate: 1.20),
     CurvePoint(area: 15000, rate: 1.00),
@@ -114,5 +121,90 @@ class BuildingRateEngine {
     );
 
     return plannedHours * supportiveShare;
+  }
+
+  static double calculateArchitectureHours({
+    required ProjectCategory category,
+    required double builtUpArea,
+  }) {
+    final productionHours = calculateProductionHours(
+      category: category,
+      builtUpArea: builtUpArea,
+    );
+
+    return productionHours * architectureShare;
+  }
+
+  static double calculateStructureHours({
+    required ProjectCategory category,
+    required double builtUpArea,
+  }) {
+    final productionHours = calculateProductionHours(
+      category: category,
+      builtUpArea: builtUpArea,
+    );
+
+    return productionHours * structureShare;
+  }
+
+  static double calculateElectricalHours({
+    required ProjectCategory category,
+    required double builtUpArea,
+  }) {
+    final productionHours = calculateProductionHours(
+      category: category,
+      builtUpArea: builtUpArea,
+    );
+
+    return productionHours * electricalShare;
+  }
+
+  static double calculatePlumbingHours({
+    required ProjectCategory category,
+    required double builtUpArea,
+  }) {
+    final productionHours = calculateProductionHours(
+      category: category,
+      builtUpArea: builtUpArea,
+    );
+
+    return productionHours * plumbingShare;
+  }
+
+  static double calculateHvacHours({
+    required ProjectCategory category,
+    required double builtUpArea,
+  }) {
+    final productionHours = calculateProductionHours(
+      category: category,
+      builtUpArea: builtUpArea,
+    );
+
+    return productionHours * hvacShare;
+  }
+
+  static double calculateQsHours({
+    required ProjectCategory category,
+    required double builtUpArea,
+  }) {
+    final architectureHours = calculateArchitectureHours(
+      category: category,
+      builtUpArea: builtUpArea,
+    );
+
+    final structureHours = calculateStructureHours(
+      category: category,
+      builtUpArea: builtUpArea,
+    );
+
+    return (architectureHours + structureHours) * qsShareFromArchAndStructure;
+  }
+
+  static double calculateIdHours({
+    required double idBuiltUpArea,
+  }) {
+    if (idBuiltUpArea <= 0) return 0;
+
+    return idBuiltUpArea * 0.35;
   }
 }
