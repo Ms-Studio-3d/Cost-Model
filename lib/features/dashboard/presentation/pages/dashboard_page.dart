@@ -120,23 +120,23 @@ class DashboardPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-           Row(
-  children: const [
-    Expanded(
-      child: AppMetricCard(
-        title: 'Modules',
-        value: '3',
-      ),
-    ),
-    SizedBox(width: 12),
-    Expanded(
-      child: AppMetricCard(
-        title: 'Status',
-        value: 'Ready',
-      ),
-    ),
-  ],
-),
+            Row(
+              children: const [
+                Expanded(
+                  child: AppMetricCard(
+                    title: 'Modules',
+                    value: '3',
+                  ),
+                ),
+                SizedBox(width: 12),
+                Expanded(
+                  child: AppMetricCard(
+                    title: 'Status',
+                    value: 'Ready',
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 24),
             _moduleCard(
               context: context,
