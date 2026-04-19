@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/widgets/app_line_item_card.dart';
+import '../../../../shared/widgets/app_metric_card.dart';
+import '../../../../shared/widgets/app_section_title.dart';
 import '../../domain/models/master_plan_project.dart';
 import '../../domain/services/master_plan_engine.dart';
 
@@ -37,100 +40,6 @@ class MasterPlanResultsPage extends StatelessWidget {
 
   String _formatCurrency(double value) {
     return '${value.toStringAsFixed(2)} ${_currencyLabel(project.currency)}';
-  }
-
-  Widget _sectionTitle(BuildContext context, String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12, top: 8),
-      child: Text(
-        title,
-        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
-      ),
-    );
-  }
-
-  Widget _summaryCard({
-    required BuildContext context,
-    required String title,
-    required String value,
-    String? subtitle,
-  }) {
-    final theme = Theme.of(context);
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF111827),
-              ),
-            ),
-            if (subtitle != null) ...[
-              const SizedBox(height: 6),
-              Text(
-                subtitle,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: const Color(0xFF6B7280),
-                ),
-              ),
-            ],
-            const SizedBox(height: 10),
-            Text(
-              value,
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w800,
-                color: theme.colorScheme.primary,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _lineItem({
-    required BuildContext context,
-    required String title,
-    required String subtitle,
-    required String value,
-  }) {
-    final theme = Theme.of(context);
-
-    return Card(
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        title: Text(
-          title,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF111827),
-          ),
-        ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 6),
-          child: Text(
-            subtitle,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: const Color(0xFF6B7280),
-            ),
-          ),
-        ),
-        trailing: Text(
-          value,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w800,
-            color: theme.colorScheme.primary,
-          ),
-        ),
-      ),
-    );
   }
 
   @override
@@ -201,78 +110,68 @@ class MasterPlanResultsPage extends StatelessWidget {
                   ),
             ),
             const SizedBox(height: 24),
-            _sectionTitle(context, 'Project Overview'),
-            _summaryCard(
-              context: context,
+            const AppSectionTitle('Project Overview'),
+            AppMetricCard(
               title: 'Category',
               value: _categoryLabel(project.category),
               subtitle: 'Currency: ${_currencyLabel(project.currency)}',
             ),
             const SizedBox(height: 16),
-            _summaryCard(
-              context: context,
+            AppMetricCard(
               title: 'Land Area',
               value: '${project.landArea.toStringAsFixed(2)} m²',
               subtitle: '${feddan.toStringAsFixed(2)} feddan',
             ),
             const SizedBox(height: 24),
-            _sectionTitle(context, 'Core Metrics'),
-            _summaryCard(
-              context: context,
+            const AppSectionTitle('Core Metrics'),
+            AppMetricCard(
               title: 'Master Plan Rate',
               value: rate.toStringAsFixed(2),
             ),
             const SizedBox(height: 16),
-            _summaryCard(
-              context: context,
+            AppMetricCard(
               title: 'Planned Hours',
               value: plannedHours.toStringAsFixed(2),
             ),
             const SizedBox(height: 24),
-            _sectionTitle(context, 'Discipline Breakdown'),
-            _lineItem(
-              context: context,
+            const AppSectionTitle('Discipline Breakdown'),
+            AppLineItemCard(
               title: 'Landscape',
               subtitle: 'Discipline hours',
               value: landscapeHours.toStringAsFixed(2),
             ),
-            _lineItem(
-              context: context,
+            AppLineItemCard(
               title: 'Urban',
               subtitle: 'Discipline hours',
               value: urbanHours.toStringAsFixed(2),
             ),
-            _lineItem(
-              context: context,
+            AppLineItemCard(
               title: 'Roads',
               subtitle: 'Discipline hours',
               value: roadsHours.toStringAsFixed(2),
             ),
-            _lineItem(
-              context: context,
+            AppLineItemCard(
               title: 'Infrastructure Wet',
               subtitle: 'Discipline hours',
               value: wetHours.toStringAsFixed(2),
             ),
-            _lineItem(
-              context: context,
+            AppLineItemCard(
               title: 'Infrastructure Dry',
               subtitle: 'Discipline hours',
               value: dryHours.toStringAsFixed(2),
             ),
             const SizedBox(height: 24),
-            _sectionTitle(context, 'Final Summary'),
-            _summaryCard(
-              context: context,
+            const AppSectionTitle('Final Summary'),
+            AppMetricCard(
               title: 'Total Cost',
               value: _formatCurrency(totalCost),
             ),
             const SizedBox(height: 16),
-            _summaryCard(
-              context: context,
+            AppMetricCard(
               title: 'Final Price',
               value: _formatCurrency(finalPrice),
-              subtitle: 'Profit Margin: ${project.profitMargin.toStringAsFixed(2)}%',
+              subtitle:
+                  'Profit Margin: ${project.profitMargin.toStringAsFixed(2)}%',
             ),
           ],
         ),
