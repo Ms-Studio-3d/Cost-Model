@@ -23,10 +23,15 @@ class BuildingRateEngine {
   static const double hvacShare = 0.14;
   static const double qsShareFromArchAndStructure = 0.10;
 
-  static const double architectureValidationDefault = 0.5;
-  static const double structureValidationDefault = 0.5;
-  static const double idValidationDefault = 0.5;
-  static const double mepValidationDefault = 0.5;
+  static const double projectManagementCadShare = 0.30;
+  static const double qualityControlCadShare = 0.20;
+  static const double bimCadCadShare = 0.15;
+  static const double documentControlCadShare = 0.35;
+
+  static const double projectManagementBimShare = 0.25;
+  static const double qualityControlBimShare = 0.18;
+  static const double bimCadBimShare = 0.32;
+  static const double documentControlBimShare = 0.25;
 
   static const Map<BuildingPhase, double> architecturePhaseProfile = {
     BuildingPhase.concept: 0.15,
@@ -251,6 +256,73 @@ class BuildingRateEngine {
     if (idBuiltUpArea <= 0) return 0;
 
     return idBuiltUpArea * 0.35;
+  }
+
+  static double calculateProjectManagementHours({
+    required ProjectCategory category,
+    required double builtUpArea,
+    required ProjectSystem projectSystem,
+  }) {
+    final supportiveHours = calculateSupportiveHours(
+      category: category,
+      builtUpArea: builtUpArea,
+    );
+
+    final share = projectSystem == ProjectSystem.cad
+        ? projectManagementCadShare
+        : projectManagementBimShare;
+
+    return supportiveHours * share;
+  }
+
+  static double calculateQualityControlHours({
+    required ProjectCategory category,
+    required double builtUpArea,
+    required ProjectSystem projectSystem,
+  }) {
+    final supportiveHours = calculateSupportiveHours(
+      category: category,
+      builtUpArea: builtUpArea,
+    );
+
+    final share = projectSystem == ProjectSystem.cad
+        ? qualityControlCadShare
+        : qualityControlBimShare;
+
+    return supportiveHours * share;
+  }
+
+  static double calculateBimCadHours({
+    required ProjectCategory category,
+    required double builtUpArea,
+    required ProjectSystem projectSystem,
+  }) {
+    final supportiveHours = calculateSupportiveHours(
+      category: category,
+      builtUpArea: builtUpArea,
+    );
+
+    final share =
+        projectSystem == ProjectSystem.cad ? bimCadCadShare : bimCadBimShare;
+
+    return supportiveHours * share;
+  }
+
+  static double calculateDocumentControlHours({
+    required ProjectCategory category,
+    required double builtUpArea,
+    required ProjectSystem projectSystem,
+  }) {
+    final supportiveHours = calculateSupportiveHours(
+      category: category,
+      builtUpArea: builtUpArea,
+    );
+
+    final share = projectSystem == ProjectSystem.cad
+        ? documentControlCadShare
+        : documentControlBimShare;
+
+    return supportiveHours * share;
   }
 
   static Map<BuildingPhase, double> distributeArchitectureByPhase({
