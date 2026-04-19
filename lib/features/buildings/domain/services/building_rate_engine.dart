@@ -13,6 +13,9 @@ class CurvePoint {
 class BuildingRateEngine {
   const BuildingRateEngine._();
 
+  static const double productionShare = 0.85;
+  static const double supportiveShare = 0.15;
+
   static const List<CurvePoint> _categoryA = [
     CurvePoint(area: 5000, rate: 1.20),
     CurvePoint(area: 15000, rate: 1.00),
@@ -87,5 +90,29 @@ class BuildingRateEngine {
     );
 
     return builtUpArea * rate;
+  }
+
+  static double calculateProductionHours({
+    required ProjectCategory category,
+    required double builtUpArea,
+  }) {
+    final plannedHours = calculatePlannedHours(
+      category: category,
+      builtUpArea: builtUpArea,
+    );
+
+    return plannedHours * productionShare;
+  }
+
+  static double calculateSupportiveHours({
+    required ProjectCategory category,
+    required double builtUpArea,
+  }) {
+    final plannedHours = calculatePlannedHours(
+      category: category,
+      builtUpArea: builtUpArea,
+    );
+
+    return plannedHours * supportiveShare;
   }
 }
