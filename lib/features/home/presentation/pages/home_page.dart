@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../../../core/constants/app_strings.dart';
 import '../../../../shared/widgets/project_type_card.dart';
 import '../../../dashboard/presentation/pages/dashboard_page.dart';
 
@@ -21,7 +20,7 @@ class HomePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(AppStrings.appName),
+        title: const Text('Cost Model'),
       ),
       body: SafeArea(
         child: ListView(
@@ -36,7 +35,7 @@ class HomePage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              AppStrings.appSubtitle,
+              'Choose the dashboard to access all pricing modules in one place.',
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: const Color(0xFF6B7280),
               ),
@@ -57,7 +56,7 @@ class HomePage extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'App Progress',
+                      'What is included',
                       style: theme.textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.w800,
                         color: const Color(0xFF111827),
@@ -65,11 +64,10 @@ class HomePage extends StatelessWidget {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'The app now includes:\n'
-                      '• Buildings workflow\n'
-                      '• Master Plan workflow\n'
-                      '• Combined workflow\n'
-                      '• Results screens\n'
+                      '• Buildings module\n'
+                      '• Master Plan module\n'
+                      '• Combined module\n'
+                      '• Results pages\n'
                       '• Costing and pricing calculations',
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: const Color(0xFF374151),
