@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/widgets/app_line_item_card.dart';
+import '../../../../shared/widgets/app_metric_card.dart';
+import '../../../../shared/widgets/app_section_title.dart';
 import '../../../buildings/domain/models/buildings_project.dart' as b_models;
 import '../../../buildings/domain/services/building_rate_engine.dart';
 import '../../../master_plan/domain/models/master_plan_project.dart' as mp_models;
@@ -77,100 +80,6 @@ class CombinedResultsPage extends StatelessWidget {
 
   String _formatCurrency(double value) {
     return '${value.toStringAsFixed(2)} ${_currencyLabel(project.buildingsProject.currency)}';
-  }
-
-  Widget _sectionTitle(BuildContext context, String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12, top: 8),
-      child: Text(
-        title,
-        style: Theme.of(context).textTheme.titleMedium?.copyWith(
-              fontWeight: FontWeight.w700,
-            ),
-      ),
-    );
-  }
-
-  Widget _summaryCard({
-    required BuildContext context,
-    required String title,
-    required String value,
-    String? subtitle,
-  }) {
-    final theme = Theme.of(context);
-
-    return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: const Color(0xFF111827),
-              ),
-            ),
-            if (subtitle != null) ...[
-              const SizedBox(height: 6),
-              Text(
-                subtitle,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: const Color(0xFF6B7280),
-                ),
-              ),
-            ],
-            const SizedBox(height: 10),
-            Text(
-              value,
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w800,
-                color: theme.colorScheme.primary,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _lineItem({
-    required BuildContext context,
-    required String title,
-    required String subtitle,
-    required String value,
-  }) {
-    final theme = Theme.of(context);
-
-    return Card(
-      child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-        title: Text(
-          title,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w700,
-            color: const Color(0xFF111827),
-          ),
-        ),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 6),
-          child: Text(
-            subtitle,
-            style: theme.textTheme.bodyMedium?.copyWith(
-              color: const Color(0xFF6B7280),
-            ),
-          ),
-        ),
-        trailing: Text(
-          value,
-          style: theme.textTheme.titleMedium?.copyWith(
-            fontWeight: FontWeight.w800,
-            color: theme.colorScheme.primary,
-          ),
-        ),
-      ),
-    );
   }
 
   @override
@@ -255,92 +164,79 @@ class CombinedResultsPage extends StatelessWidget {
                   ),
             ),
             const SizedBox(height: 24),
-            _sectionTitle(context, 'Combined Totals'),
-            _summaryCard(
-              context: context,
+            const AppSectionTitle('Combined Totals'),
+            AppMetricCard(
               title: 'Combined Planned Hours',
               value: combinedHours.toStringAsFixed(2),
             ),
             const SizedBox(height: 16),
-            _summaryCard(
-              context: context,
+            AppMetricCard(
               title: 'Combined Total Cost',
               value: _formatCurrency(combinedCost),
             ),
             const SizedBox(height: 16),
-            _summaryCard(
-              context: context,
+            AppMetricCard(
               title: 'Combined Final Price',
               value: _formatCurrency(combinedPrice),
             ),
             const SizedBox(height: 24),
-            _sectionTitle(context, 'Buildings Summary'),
-            _lineItem(
-              context: context,
+            const AppSectionTitle('Buildings Summary'),
+            AppLineItemCard(
               title: 'Buildings Category',
               subtitle: _buildingProjectTypeLabel(buildingsProject.projectType),
               value: _buildingCategoryLabel(buildingsProject.projectCategory),
             ),
-            _lineItem(
-              context: context,
+            AppLineItemCard(
               title: 'Buildings System',
-              subtitle: 'BUA ${buildingsProject.builtUpArea.toStringAsFixed(2)} / ID ${buildingsProject.idBuiltUpArea.toStringAsFixed(2)}',
+              subtitle:
+                  'BUA ${buildingsProject.builtUpArea.toStringAsFixed(2)} / ID ${buildingsProject.idBuiltUpArea.toStringAsFixed(2)}',
               value: _buildingSystemLabel(buildingsProject.projectSystem),
             ),
-            _lineItem(
-              context: context,
+            AppLineItemCard(
               title: 'Buildings Rate',
               subtitle: 'Calculated building rate',
               value: buildingsRate.toStringAsFixed(3),
             ),
-            _lineItem(
-              context: context,
+            AppLineItemCard(
               title: 'Buildings Planned Hours',
               subtitle: 'Calculated from BUA × rate',
               value: buildingsPlannedHours.toStringAsFixed(2),
             ),
-            _lineItem(
-              context: context,
+            AppLineItemCard(
               title: 'Buildings Total Cost',
               subtitle: 'Department cost + other expenses',
               value: _formatCurrency(buildingsTotalCost),
             ),
-            _lineItem(
-              context: context,
+            AppLineItemCard(
               title: 'Buildings Final Price',
               subtitle:
                   'Profit Margin ${buildingsProject.profitMargin.toStringAsFixed(2)}%',
               value: _formatCurrency(buildingsFinalPrice),
             ),
             const SizedBox(height: 24),
-            _sectionTitle(context, 'Master Plan Summary'),
-            _lineItem(
-              context: context,
+            const AppSectionTitle('Master Plan Summary'),
+            AppLineItemCard(
               title: 'Master Plan Category',
               subtitle:
                   'Land Area ${masterPlanProject.landArea.toStringAsFixed(2)} m²',
               value: _masterPlanCategoryLabel(masterPlanProject.category),
             ),
-            _lineItem(
-              context: context,
+            AppLineItemCard(
               title: 'Master Plan Rate',
               subtitle: 'Calculated master plan rate',
               value: masterPlanRate.toStringAsFixed(2),
             ),
-            _lineItem(
-              context: context,
+            AppLineItemCard(
               title: 'Master Plan Planned Hours',
               subtitle: 'Calculated from land area',
               value: masterPlanPlannedHours.toStringAsFixed(2),
             ),
-            _lineItem(
-              context: context,
+            AppLineItemCard(
               title: 'Master Plan Total Cost',
               subtitle: 'Department cost + other expenses',
               value: _formatCurrency(masterPlanTotalCost),
             ),
-            _lineItem(
-              context: context,
+            AppLineItemCard(
               title: 'Master Plan Final Price',
               subtitle:
                   'Profit Margin ${masterPlanProject.profitMargin.toStringAsFixed(2)}%',
