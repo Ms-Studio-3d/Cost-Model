@@ -111,6 +111,26 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
     return double.tryParse(_idBuaController.text.trim()) ?? _project.idBuiltUpArea;
   }
 
+  double _currentArchitectureValidation() {
+    return double.tryParse(_architectureValidationController.text.trim()) ??
+        _project.architectureValidationFactor;
+  }
+
+  double _currentStructureValidation() {
+    return double.tryParse(_structureValidationController.text.trim()) ??
+        _project.structureValidationFactor;
+  }
+
+  double _currentIdValidation() {
+    return double.tryParse(_idValidationController.text.trim()) ??
+        _project.idValidationFactor;
+  }
+
+  double _currentMepValidation() {
+    return double.tryParse(_mepValidationController.text.trim()) ??
+        _project.mepValidationFactor;
+  }
+
   double _currentBuildingRate() {
     return BuildingRateEngine.calculate(
       category: _project.projectCategory,
@@ -184,6 +204,67 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
   double _currentIdHours() {
     return BuildingRateEngine.calculateIdHours(
       idBuiltUpArea: _currentIdBuiltUpArea(),
+    );
+  }
+
+  Map<BuildingPhase, double> _architecturePhaseHours() {
+    return BuildingRateEngine.distributeArchitectureByPhase(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+      scope: _project.scopeMatrix[BuildingDiscipline.architecture] ?? {},
+      validationFactor: _currentArchitectureValidation(),
+    );
+  }
+
+  Map<BuildingPhase, double> _structurePhaseHours() {
+    return BuildingRateEngine.distributeStructureByPhase(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+      scope: _project.scopeMatrix[BuildingDiscipline.structure] ?? {},
+      validationFactor: _currentStructureValidation(),
+    );
+  }
+
+  Map<BuildingPhase, double> _electricalPhaseHours() {
+    return BuildingRateEngine.distributeElectricalByPhase(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+      scope: _project.scopeMatrix[BuildingDiscipline.electrical] ?? {},
+      validationFactor: _currentMepValidation(),
+    );
+  }
+
+  Map<BuildingPhase, double> _plumbingPhaseHours() {
+    return BuildingRateEngine.distributePlumbingByPhase(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+      scope: _project.scopeMatrix[BuildingDiscipline.plumbing] ?? {},
+      validationFactor: _currentMepValidation(),
+    );
+  }
+
+  Map<BuildingPhase, double> _hvacPhaseHours() {
+    return BuildingRateEngine.distributeHvacByPhase(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+      scope: _project.scopeMatrix[BuildingDiscipline.hvac] ?? {},
+      validationFactor: _currentMepValidation(),
+    );
+  }
+
+  Map<BuildingPhase, double> _qsPhaseHours() {
+    return BuildingRateEngine.distributeQsByPhase(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+      scope: _project.scopeMatrix[BuildingDiscipline.qs] ?? {},
+    );
+  }
+
+  Map<BuildingPhase, double> _idPhaseHours() {
+    return BuildingRateEngine.distributeIdByPhase(
+      idBuiltUpArea: _currentIdBuiltUpArea(),
+      scope: _project.scopeMatrix[BuildingDiscipline.id] ?? {},
+      validationFactor: _currentIdValidation(),
     );
   }
 
@@ -394,6 +475,81 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
     );
   }
 
+  Widget _buildPhaseDistributionCard({
+    required ThemeData theme,
+    required String title,
+    required Map<BuildingPhase, double> phaseHours,
+  }) {
+    final total = BuildingRateEngine.sumPhaseHours(phaseHours);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title,
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF111827),
+              ),
+            ),
+            const SizedBox(height: 12),
+            ...BuildingPhase.values.map((phase) {
+              final value = phaseHours[phase] ?? 0;
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        _phaseLabel(phase),
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: const Color(0xFF374151),
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      value.toStringAsFixed(2),
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: const Color(0xFF111827),
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            }),
+            const Divider(height: 24),
+            Row(
+              children: [
+                Expanded(
+                  child: Text(
+                    'Adjusted Total',
+                    style: theme.textTheme.bodyLarge?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: const Color(0xFF111827),
+                    ),
+                  ),
+                ),
+                Text(
+                  total.toStringAsFixed(2),
+                  style: theme.textTheme.bodyLarge?.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: theme.colorScheme.primary,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildScopeCard(
     BuildingDiscipline discipline,
     Map<BuildingPhase, ScopeMode> phases,
@@ -488,6 +644,14 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
     final qsHours = _currentQsHours();
     final idHours = _currentIdHours();
 
+    final architecturePhaseHours = _architecturePhaseHours();
+    final structurePhaseHours = _structurePhaseHours();
+    final electricalPhaseHours = _electricalPhaseHours();
+    final plumbingPhaseHours = _plumbingPhaseHours();
+    final hvacPhaseHours = _hvacPhaseHours();
+    final qsPhaseHours = _qsPhaseHours();
+    final idPhaseHours = _idPhaseHours();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Buildings Setup'),
@@ -507,7 +671,7 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                'This screen now includes discipline breakdown for production hours.',
+                'This screen now includes phase distribution with Full / Validation / Off effect.',
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: const Color(0xFF6B7280),
                 ),
@@ -678,6 +842,43 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
                 value: idHours.toStringAsFixed(2),
               ),
               const SizedBox(height: 24),
+              _sectionTitle('Phase Distribution'),
+              _buildPhaseDistributionCard(
+                theme: theme,
+                title: 'Architecture',
+                phaseHours: architecturePhaseHours,
+              ),
+              _buildPhaseDistributionCard(
+                theme: theme,
+                title: 'Structure',
+                phaseHours: structurePhaseHours,
+              ),
+              _buildPhaseDistributionCard(
+                theme: theme,
+                title: 'Electrical',
+                phaseHours: electricalPhaseHours,
+              ),
+              _buildPhaseDistributionCard(
+                theme: theme,
+                title: 'Plumbing',
+                phaseHours: plumbingPhaseHours,
+              ),
+              _buildPhaseDistributionCard(
+                theme: theme,
+                title: 'HVAC',
+                phaseHours: hvacPhaseHours,
+              ),
+              _buildPhaseDistributionCard(
+                theme: theme,
+                title: 'QS',
+                phaseHours: qsPhaseHours,
+              ),
+              _buildPhaseDistributionCard(
+                theme: theme,
+                title: 'ID',
+                phaseHours: idPhaseHours,
+              ),
+              const SizedBox(height: 24),
               _sectionTitle('Validation Factors'),
               TextFormField(
                 controller: _architectureValidationController,
@@ -692,6 +893,7 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
                   value,
                   'Architecture Validation Factor',
                 ),
+                onChanged: (_) => setState(() {}),
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -707,6 +909,7 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
                   value,
                   'Structure Validation Factor',
                 ),
+                onChanged: (_) => setState(() {}),
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -722,6 +925,7 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
                   value,
                   'ID Validation Factor',
                 ),
+                onChanged: (_) => setState(() {}),
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -737,6 +941,7 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
                   value,
                   'MEP Validation Factor',
                 ),
+                onChanged: (_) => setState(() {}),
               ),
               const SizedBox(height: 24),
               _sectionTitle('Pricing'),
@@ -871,16 +1076,16 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
                           'ID: ${_currentIdHours().toStringAsFixed(2)}',
                         ),
                         Text(
-                          'Architecture Validation: ${_project.architectureValidationFactor}',
+                          'Architecture Validation: ${_currentArchitectureValidation()}',
                         ),
                         Text(
-                          'Structure Validation: ${_project.structureValidationFactor}',
+                          'Structure Validation: ${_currentStructureValidation()}',
                         ),
                         Text(
-                          'ID Validation: ${_project.idValidationFactor}',
+                          'ID Validation: ${_currentIdValidation()}',
                         ),
                         Text(
-                          'MEP Validation: ${_project.mepValidationFactor}',
+                          'MEP Validation: ${_currentMepValidation()}',
                         ),
                         Text('Profit Margin: ${_project.profitMargin}%'),
                         Text('Other Expenses: ${_project.otherExpenses}'),
