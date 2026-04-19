@@ -33,6 +33,19 @@ class BuildingRateEngine {
   static const double bimCadBimShare = 0.32;
   static const double documentControlBimShare = 0.25;
 
+  static const double architectureCostPerHour = 320;
+  static const double structureCostPerHour = 300;
+  static const double electricalCostPerHour = 280;
+  static const double plumbingCostPerHour = 260;
+  static const double hvacCostPerHour = 280;
+  static const double qsCostPerHour = 240;
+  static const double idCostPerHour = 300;
+
+  static const double projectManagementCostPerHour = 350;
+  static const double qualityControlCostPerHour = 260;
+  static const double bimCadCostPerHour = 250;
+  static const double documentControlCostPerHour = 180;
+
   static const Map<BuildingPhase, double> architecturePhaseProfile = {
     BuildingPhase.concept: 0.15,
     BuildingPhase.schematic: 0.20,
@@ -323,6 +336,206 @@ class BuildingRateEngine {
         : documentControlBimShare;
 
     return supportiveHours * share;
+  }
+
+  static double calculateArchitectureCost({
+    required ProjectCategory category,
+    required double builtUpArea,
+  }) {
+    return calculateArchitectureHours(
+          category: category,
+          builtUpArea: builtUpArea,
+        ) *
+        architectureCostPerHour;
+  }
+
+  static double calculateStructureCost({
+    required ProjectCategory category,
+    required double builtUpArea,
+  }) {
+    return calculateStructureHours(
+          category: category,
+          builtUpArea: builtUpArea,
+        ) *
+        structureCostPerHour;
+  }
+
+  static double calculateElectricalCost({
+    required ProjectCategory category,
+    required double builtUpArea,
+  }) {
+    return calculateElectricalHours(
+          category: category,
+          builtUpArea: builtUpArea,
+        ) *
+        electricalCostPerHour;
+  }
+
+  static double calculatePlumbingCost({
+    required ProjectCategory category,
+    required double builtUpArea,
+  }) {
+    return calculatePlumbingHours(
+          category: category,
+          builtUpArea: builtUpArea,
+        ) *
+        plumbingCostPerHour;
+  }
+
+  static double calculateHvacCost({
+    required ProjectCategory category,
+    required double builtUpArea,
+  }) {
+    return calculateHvacHours(
+          category: category,
+          builtUpArea: builtUpArea,
+        ) *
+        hvacCostPerHour;
+  }
+
+  static double calculateQsCost({
+    required ProjectCategory category,
+    required double builtUpArea,
+  }) {
+    return calculateQsHours(
+          category: category,
+          builtUpArea: builtUpArea,
+        ) *
+        qsCostPerHour;
+  }
+
+  static double calculateIdCost({
+    required double idBuiltUpArea,
+  }) {
+    return calculateIdHours(
+          idBuiltUpArea: idBuiltUpArea,
+        ) *
+        idCostPerHour;
+  }
+
+  static double calculateProjectManagementCost({
+    required ProjectCategory category,
+    required double builtUpArea,
+    required ProjectSystem projectSystem,
+  }) {
+    return calculateProjectManagementHours(
+          category: category,
+          builtUpArea: builtUpArea,
+          projectSystem: projectSystem,
+        ) *
+        projectManagementCostPerHour;
+  }
+
+  static double calculateQualityControlCost({
+    required ProjectCategory category,
+    required double builtUpArea,
+    required ProjectSystem projectSystem,
+  }) {
+    return calculateQualityControlHours(
+          category: category,
+          builtUpArea: builtUpArea,
+          projectSystem: projectSystem,
+        ) *
+        qualityControlCostPerHour;
+  }
+
+  static double calculateBimCadCost({
+    required ProjectCategory category,
+    required double builtUpArea,
+    required ProjectSystem projectSystem,
+  }) {
+    return calculateBimCadHours(
+          category: category,
+          builtUpArea: builtUpArea,
+          projectSystem: projectSystem,
+        ) *
+        bimCadCostPerHour;
+  }
+
+  static double calculateDocumentControlCost({
+    required ProjectCategory category,
+    required double builtUpArea,
+    required ProjectSystem projectSystem,
+  }) {
+    return calculateDocumentControlHours(
+          category: category,
+          builtUpArea: builtUpArea,
+          projectSystem: projectSystem,
+        ) *
+        documentControlCostPerHour;
+  }
+
+  static double calculateTotalCost({
+    required ProjectCategory category,
+    required double builtUpArea,
+    required double idBuiltUpArea,
+    required ProjectSystem projectSystem,
+  }) {
+    return calculateArchitectureCost(
+          category: category,
+          builtUpArea: builtUpArea,
+        ) +
+        calculateStructureCost(
+          category: category,
+          builtUpArea: builtUpArea,
+        ) +
+        calculateElectricalCost(
+          category: category,
+          builtUpArea: builtUpArea,
+        ) +
+        calculatePlumbingCost(
+          category: category,
+          builtUpArea: builtUpArea,
+        ) +
+        calculateHvacCost(
+          category: category,
+          builtUpArea: builtUpArea,
+        ) +
+        calculateQsCost(
+          category: category,
+          builtUpArea: builtUpArea,
+        ) +
+        calculateIdCost(
+          idBuiltUpArea: idBuiltUpArea,
+        ) +
+        calculateProjectManagementCost(
+          category: category,
+          builtUpArea: builtUpArea,
+          projectSystem: projectSystem,
+        ) +
+        calculateQualityControlCost(
+          category: category,
+          builtUpArea: builtUpArea,
+          projectSystem: projectSystem,
+        ) +
+        calculateBimCadCost(
+          category: category,
+          builtUpArea: builtUpArea,
+          projectSystem: projectSystem,
+        ) +
+        calculateDocumentControlCost(
+          category: category,
+          builtUpArea: builtUpArea,
+          projectSystem: projectSystem,
+        );
+  }
+
+  static double calculateFinalPrice({
+    required ProjectCategory category,
+    required double builtUpArea,
+    required double idBuiltUpArea,
+    required ProjectSystem projectSystem,
+    required double profitMarginPercent,
+    required double otherExpenses,
+  }) {
+    final totalCost = calculateTotalCost(
+      category: category,
+      builtUpArea: builtUpArea,
+      idBuiltUpArea: idBuiltUpArea,
+      projectSystem: projectSystem,
+    );
+
+    return totalCost + (totalCost * (profitMarginPercent / 100)) + otherExpenses;
   }
 
   static Map<BuildingPhase, double> distributeArchitectureByPhase({
