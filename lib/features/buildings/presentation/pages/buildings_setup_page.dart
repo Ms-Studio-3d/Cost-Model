@@ -103,13 +103,21 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
     });
   }
 
-  double _currentBuildingRate() {
-    final bua =
-        double.tryParse(_buaController.text.trim()) ?? _project.builtUpArea;
+  double _currentBuiltUpArea() {
+    return double.tryParse(_buaController.text.trim()) ?? _project.builtUpArea;
+  }
 
+  double _currentBuildingRate() {
     return BuildingRateEngine.calculate(
       category: _project.projectCategory,
-      builtUpArea: bua,
+      builtUpArea: _currentBuiltUpArea(),
+    );
+  }
+
+  double _currentPlannedHours() {
+    return BuildingRateEngine.calculatePlannedHours(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
     );
   }
 
@@ -332,6 +340,7 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final currentRate = _currentBuildingRate();
+    final currentPlannedHours = _currentPlannedHours();
 
     return Scaffold(
       appBar: AppBar(
@@ -352,7 +361,7 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                'This screen now includes validation factors, scope matrix, and building rate.',
+                'This screen now includes validation factors, scope matrix, building rate, and planned hours.',
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: const Color(0xFF6B7280),
                 ),
@@ -461,6 +470,34 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
                         currentRate == 0
                             ? 'Enter a valid BUA to calculate rate.'
                             : currentRate.toStringAsFixed(3),
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: const Color(0xFF111827),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+              _sectionTitle('Planned Hours'),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Calculated as Built Up Area × Building Rate',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: const Color(0xFF6B7280),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        currentPlannedHours == 0
+                            ? 'Enter a valid BUA to calculate planned hours.'
+                            : currentPlannedHours.toStringAsFixed(2),
                         style: theme.textTheme.headlineSmall?.copyWith(
                           fontWeight: FontWeight.w800,
                           color: const Color(0xFF111827),
@@ -632,6 +669,9 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
                         Text('ID BUA: ${_project.idBuiltUpArea}'),
                         Text(
                           'Building Rate: ${_currentBuildingRate().toStringAsFixed(3)}',
+                        ),
+                        Text(
+                          'Planned Hours: ${_currentPlannedHours().toStringAsFixed(2)}',
                         ),
                         Text(
                           'Architecture Validation: ${_project.architectureValidationFactor}',
