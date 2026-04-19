@@ -18,6 +18,11 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
   late final TextEditingController _profitMarginController;
   late final TextEditingController _otherExpensesController;
 
+  late final TextEditingController _architectureValidationController;
+  late final TextEditingController _structureValidationController;
+  late final TextEditingController _idValidationController;
+  late final TextEditingController _mepValidationController;
+
   BuildingsProject _project = const BuildingsProject();
 
   @override
@@ -27,6 +32,11 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
     _idBuaController = TextEditingController();
     _profitMarginController = TextEditingController(text: '30');
     _otherExpensesController = TextEditingController(text: '0');
+
+    _architectureValidationController = TextEditingController(text: '0.5');
+    _structureValidationController = TextEditingController(text: '0.5');
+    _idValidationController = TextEditingController(text: '0.5');
+    _mepValidationController = TextEditingController(text: '0.5');
   }
 
   @override
@@ -35,6 +45,12 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
     _idBuaController.dispose();
     _profitMarginController.dispose();
     _otherExpensesController.dispose();
+
+    _architectureValidationController.dispose();
+    _structureValidationController.dispose();
+    _idValidationController.dispose();
+    _mepValidationController.dispose();
+
     super.dispose();
   }
 
@@ -47,6 +63,14 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
       profitMargin: double.tryParse(_profitMarginController.text.trim()) ?? 0,
       otherExpenses:
           double.tryParse(_otherExpensesController.text.trim()) ?? 0,
+      architectureValidationFactor:
+          double.tryParse(_architectureValidationController.text.trim()) ?? 0.5,
+      structureValidationFactor:
+          double.tryParse(_structureValidationController.text.trim()) ?? 0.5,
+      idValidationFactor:
+          double.tryParse(_idValidationController.text.trim()) ?? 0.5,
+      mepValidationFactor:
+          double.tryParse(_mepValidationController.text.trim()) ?? 0.5,
     );
 
     setState(() {
@@ -186,6 +210,23 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
     return null;
   }
 
+  String? _validationFactorValidator(String? value, String fieldName) {
+    if (value == null || value.trim().isEmpty) {
+      return '$fieldName is required';
+    }
+
+    final parsed = double.tryParse(value.trim());
+    if (parsed == null) {
+      return 'Enter a valid number';
+    }
+
+    if (parsed < 0 || parsed > 1) {
+      return '$fieldName must be between 0 and 1';
+    }
+
+    return null;
+  }
+
   Widget _sectionTitle(String title) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 12, top: 8),
@@ -299,7 +340,7 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                'This screen now includes the buildings scope matrix.',
+                'This screen now includes validation factors and scope matrix.',
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: const Color(0xFF6B7280),
                 ),
@@ -387,6 +428,67 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
                 ),
                 validator: (value) =>
                     _requiredNumber(value, 'ID Built Up Area'),
+              ),
+              const SizedBox(height: 24),
+              _sectionTitle('Validation Factors'),
+              TextFormField(
+                controller: _architectureValidationController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: _decoration(
+                  'Architecture Validation Factor',
+                  hint: 'Example: 0.5',
+                ),
+                validator: (value) => _validationFactorValidator(
+                  value,
+                  'Architecture Validation Factor',
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _structureValidationController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: _decoration(
+                  'Structure Validation Factor',
+                  hint: 'Example: 0.5',
+                ),
+                validator: (value) => _validationFactorValidator(
+                  value,
+                  'Structure Validation Factor',
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _idValidationController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: _decoration(
+                  'ID Validation Factor',
+                  hint: 'Example: 0.5',
+                ),
+                validator: (value) => _validationFactorValidator(
+                  value,
+                  'ID Validation Factor',
+                ),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _mepValidationController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: _decoration(
+                  'MEP Validation Factor',
+                  hint: 'Example: 0.5',
+                ),
+                validator: (value) => _validationFactorValidator(
+                  value,
+                  'MEP Validation Factor',
+                ),
               ),
               const SizedBox(height: 24),
               _sectionTitle('Pricing'),
@@ -487,6 +589,18 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
                         ),
                         Text('BUA: ${_project.builtUpArea}'),
                         Text('ID BUA: ${_project.idBuiltUpArea}'),
+                        Text(
+                          'Architecture Validation: ${_project.architectureValidationFactor}',
+                        ),
+                        Text(
+                          'Structure Validation: ${_project.structureValidationFactor}',
+                        ),
+                        Text(
+                          'ID Validation: ${_project.idValidationFactor}',
+                        ),
+                        Text(
+                          'MEP Validation: ${_project.mepValidationFactor}',
+                        ),
                         Text('Profit Margin: ${_project.profitMargin}%'),
                         Text('Other Expenses: ${_project.otherExpenses}'),
                         Text(
