@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:cost_model/core/theme/app_theme.dart';
-import 'package:cost_model/features/home/presentation/pages/home_page.dart';
+
+import 'core/theme/app_theme.dart';
+import 'features/splash/presentation/pages/splash_page.dart';
 
 class CostModelApp extends StatelessWidget {
   const CostModelApp({super.key});
@@ -11,7 +12,7 @@ class CostModelApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Cost Model',
       theme: AppTheme.lightTheme,
-      home: const HomePage(),
+      home: const SplashPage(),
     );
   }
 }
