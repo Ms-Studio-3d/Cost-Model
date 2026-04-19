@@ -76,4 +76,16 @@ class BuildingRateEngine {
 
     return points.last.rate;
   }
+
+  static double calculatePlannedHours({
+    required ProjectCategory category,
+    required double builtUpArea,
+  }) {
+    final rate = calculate(
+      category: category,
+      builtUpArea: builtUpArea,
+    );
+
+    return builtUpArea * rate;
+  }
 }
