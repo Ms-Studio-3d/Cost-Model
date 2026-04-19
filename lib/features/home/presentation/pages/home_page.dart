@@ -1,28 +1,25 @@
 import 'package:flutter/material.dart';
-import 'package:cost_model/core/constants/app_strings.dart';
-import 'package:cost_model/features/buildings/presentation/pages/buildings_setup_page.dart';
-import 'package:cost_model/features/combined/presentation/pages/combined_setup_page.dart';
-import 'package:cost_model/features/master_plan/presentation/pages/master_plan_setup_page.dart';
-import 'package:cost_model/shared/widgets/project_type_card.dart';
+
+import '../../../../core/constants/app_strings.dart';
+import '../../../../shared/widgets/project_type_card.dart';
+import '../../../buildings/presentation/pages/buildings_setup_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
   void _openBuildings(BuildContext context) {
     Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const BuildingsSetupPage()),
+      MaterialPageRoute(
+        builder: (_) => const BuildingsSetupPage(),
+      ),
     );
   }
 
-  void _openMasterPlan(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const MasterPlanSetupPage()),
-    );
-  }
-
-  void _openCombined(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(builder: (_) => const CombinedSetupPage()),
+  void _showComingSoon(BuildContext context, String projectType) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('$projectType screen is coming next.'),
+      ),
     );
   }
 
@@ -65,14 +62,14 @@ class HomePage extends StatelessWidget {
               description:
                   'Create a pricing scenario for master plan disciplines and land area.',
               icon: Icons.map_rounded,
-              onTap: () => _openMasterPlan(context),
+              onTap: () => _showComingSoon(context, AppStrings.masterPlan),
             ),
             ProjectTypeCard(
               title: AppStrings.combined,
               description:
                   'Combine buildings and master plan pricing in one project.',
               icon: Icons.dashboard_customize_rounded,
-              onTap: () => _openCombined(context),
+              onTap: () => _showComingSoon(context, AppStrings.combined),
             ),
           ],
         ),
