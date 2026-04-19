@@ -42,6 +42,10 @@ class BuildingsProject {
     this.profitMargin = 30,
     this.otherExpenses = 0,
     this.currency = Currency.egp,
+    this.architectureValidationFactor = 0.5,
+    this.structureValidationFactor = 0.5,
+    this.idValidationFactor = 0.5,
+    this.mepValidationFactor = 0.5,
     this.scopeMatrix = _defaultScopeMatrix,
   });
 
@@ -53,6 +57,12 @@ class BuildingsProject {
   final double profitMargin;
   final double otherExpenses;
   final Currency currency;
+
+  final double architectureValidationFactor;
+  final double structureValidationFactor;
+  final double idValidationFactor;
+  final double mepValidationFactor;
+
   final Map<BuildingDiscipline, Map<BuildingPhase, ScopeMode>> scopeMatrix;
 
   static const Map<BuildingDiscipline, Map<BuildingPhase, ScopeMode>>
@@ -117,6 +127,10 @@ class BuildingsProject {
     double? profitMargin,
     double? otherExpenses,
     Currency? currency,
+    double? architectureValidationFactor,
+    double? structureValidationFactor,
+    double? idValidationFactor,
+    double? mepValidationFactor,
     Map<BuildingDiscipline, Map<BuildingPhase, ScopeMode>>? scopeMatrix,
   }) {
     return BuildingsProject(
@@ -128,6 +142,12 @@ class BuildingsProject {
       profitMargin: profitMargin ?? this.profitMargin,
       otherExpenses: otherExpenses ?? this.otherExpenses,
       currency: currency ?? this.currency,
+      architectureValidationFactor:
+          architectureValidationFactor ?? this.architectureValidationFactor,
+      structureValidationFactor:
+          structureValidationFactor ?? this.structureValidationFactor,
+      idValidationFactor: idValidationFactor ?? this.idValidationFactor,
+      mepValidationFactor: mepValidationFactor ?? this.mepValidationFactor,
       scopeMatrix: scopeMatrix ?? this.scopeMatrix,
     );
   }
