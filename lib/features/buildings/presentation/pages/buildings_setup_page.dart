@@ -108,7 +108,8 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
   }
 
   double _currentIdBuiltUpArea() {
-    return double.tryParse(_idBuaController.text.trim()) ?? _project.idBuiltUpArea;
+    return double.tryParse(_idBuaController.text.trim()) ??
+        _project.idBuiltUpArea;
   }
 
   double _currentArchitectureValidation() {
@@ -204,6 +205,38 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
   double _currentIdHours() {
     return BuildingRateEngine.calculateIdHours(
       idBuiltUpArea: _currentIdBuiltUpArea(),
+    );
+  }
+
+  double _currentProjectManagementHours() {
+    return BuildingRateEngine.calculateProjectManagementHours(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+      projectSystem: _project.projectSystem,
+    );
+  }
+
+  double _currentQualityControlHours() {
+    return BuildingRateEngine.calculateQualityControlHours(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+      projectSystem: _project.projectSystem,
+    );
+  }
+
+  double _currentBimCadHours() {
+    return BuildingRateEngine.calculateBimCadHours(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+      projectSystem: _project.projectSystem,
+    );
+  }
+
+  double _currentDocumentControlHours() {
+    return BuildingRateEngine.calculateDocumentControlHours(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+      projectSystem: _project.projectSystem,
     );
   }
 
@@ -350,6 +383,10 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
       case BuildingPhase.tenderIfc:
         return 'Tender / IFC';
     }
+  }
+
+  String _bimCadLabel() {
+    return _project.projectSystem == ProjectSystem.cad ? 'CAD' : 'BIM';
   }
 
   InputDecoration _decoration(String label, {String? hint}) {
@@ -644,6 +681,11 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
     final qsHours = _currentQsHours();
     final idHours = _currentIdHours();
 
+    final pmHours = _currentProjectManagementHours();
+    final qcHours = _currentQualityControlHours();
+    final bimCadHours = _currentBimCadHours();
+    final dcHours = _currentDocumentControlHours();
+
     final architecturePhaseHours = _architecturePhaseHours();
     final structurePhaseHours = _structurePhaseHours();
     final electricalPhaseHours = _electricalPhaseHours();
@@ -671,7 +713,7 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                'This screen now includes phase distribution with Full / Validation / Off effect.',
+                'This screen now includes supportive departments based on the selected project system.',
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: const Color(0xFF6B7280),
                 ),
@@ -840,6 +882,33 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
                 title: 'ID',
                 subtitle: 'Temporary placeholder based on ID BUA',
                 value: idHours.toStringAsFixed(2),
+              ),
+              const SizedBox(height: 24),
+              _sectionTitle('Supportive Breakdown'),
+              _buildProductionDisciplineCard(
+                theme: theme,
+                title: 'Project Management',
+                subtitle: 'Supportive department allocation',
+                value: pmHours.toStringAsFixed(2),
+              ),
+              _buildProductionDisciplineCard(
+                theme: theme,
+                title: 'Quality Control',
+                subtitle: 'Supportive department allocation',
+                value: qcHours.toStringAsFixed(2),
+              ),
+              _buildProductionDisciplineCard(
+                theme: theme,
+                title: _bimCadLabel(),
+                subtitle:
+                    'System-based allocation (${_projectSystemLabel(_project.projectSystem)})',
+                value: bimCadHours.toStringAsFixed(2),
+              ),
+              _buildProductionDisciplineCard(
+                theme: theme,
+                title: 'Document Control',
+                subtitle: 'Supportive department allocation',
+                value: dcHours.toStringAsFixed(2),
               ),
               const SizedBox(height: 24),
               _sectionTitle('Phase Distribution'),
@@ -1074,6 +1143,18 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
                         ),
                         Text(
                           'ID: ${_currentIdHours().toStringAsFixed(2)}',
+                        ),
+                        Text(
+                          'PM: ${_currentProjectManagementHours().toStringAsFixed(2)}',
+                        ),
+                        Text(
+                          'QC: ${_currentQualityControlHours().toStringAsFixed(2)}',
+                        ),
+                        Text(
+                          '${_bimCadLabel()}: ${_currentBimCadHours().toStringAsFixed(2)}',
+                        ),
+                        Text(
+                          'Document Control: ${_currentDocumentControlHours().toStringAsFixed(2)}',
                         ),
                         Text(
                           'Architecture Validation: ${_currentArchitectureValidation()}',
