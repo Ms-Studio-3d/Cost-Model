@@ -107,6 +107,10 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
     return double.tryParse(_buaController.text.trim()) ?? _project.builtUpArea;
   }
 
+  double _currentIdBuiltUpArea() {
+    return double.tryParse(_idBuaController.text.trim()) ?? _project.idBuiltUpArea;
+  }
+
   double _currentBuildingRate() {
     return BuildingRateEngine.calculate(
       category: _project.projectCategory,
@@ -132,6 +136,54 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
     return BuildingRateEngine.calculateSupportiveHours(
       category: _project.projectCategory,
       builtUpArea: _currentBuiltUpArea(),
+    );
+  }
+
+  double _currentArchitectureHours() {
+    return BuildingRateEngine.calculateArchitectureHours(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+    );
+  }
+
+  double _currentStructureHours() {
+    return BuildingRateEngine.calculateStructureHours(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+    );
+  }
+
+  double _currentElectricalHours() {
+    return BuildingRateEngine.calculateElectricalHours(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+    );
+  }
+
+  double _currentPlumbingHours() {
+    return BuildingRateEngine.calculatePlumbingHours(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+    );
+  }
+
+  double _currentHvacHours() {
+    return BuildingRateEngine.calculateHvacHours(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+    );
+  }
+
+  double _currentQsHours() {
+    return BuildingRateEngine.calculateQsHours(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+    );
+  }
+
+  double _currentIdHours() {
+    return BuildingRateEngine.calculateIdHours(
+      idBuiltUpArea: _currentIdBuiltUpArea(),
     );
   }
 
@@ -274,7 +326,6 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
 
   Widget _buildMetricCard({
     required ThemeData theme,
-    required String title,
     required String subtitle,
     required String value,
   }) {
@@ -299,6 +350,45 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProductionDisciplineCard({
+    required ThemeData theme,
+    required String title,
+    required String subtitle,
+    required String value,
+  }) {
+    return Card(
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 8,
+        ),
+        title: Text(
+          title,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+            color: const Color(0xFF111827),
+          ),
+        ),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 6),
+          child: Text(
+            subtitle,
+            style: theme.textTheme.bodyMedium?.copyWith(
+              color: const Color(0xFF6B7280),
+            ),
+          ),
+        ),
+        trailing: Text(
+          value,
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w800,
+            color: theme.colorScheme.primary,
+          ),
         ),
       ),
     );
@@ -390,6 +480,14 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
     final currentProductionHours = _currentProductionHours();
     final currentSupportiveHours = _currentSupportiveHours();
 
+    final architectureHours = _currentArchitectureHours();
+    final structureHours = _currentStructureHours();
+    final electricalHours = _currentElectricalHours();
+    final plumbingHours = _currentPlumbingHours();
+    final hvacHours = _currentHvacHours();
+    final qsHours = _currentQsHours();
+    final idHours = _currentIdHours();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Buildings Setup'),
@@ -409,7 +507,7 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                'This screen now includes validation factors, scope matrix, building rate, planned hours, production hours, and supportive hours.',
+                'This screen now includes discipline breakdown for production hours.',
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: const Color(0xFF6B7280),
                 ),
@@ -498,12 +596,12 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
                 ),
                 validator: (value) =>
                     _requiredNumber(value, 'ID Built Up Area'),
+                onChanged: (_) => setState(() {}),
               ),
               const SizedBox(height: 24),
               _sectionTitle('Building Rate'),
               _buildMetricCard(
                 theme: theme,
-                title: 'Building Rate',
                 subtitle: 'Calculated from Category + Built Up Area',
                 value: currentRate == 0
                     ? 'Enter a valid BUA to calculate rate.'
@@ -513,7 +611,6 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
               _sectionTitle('Planned Hours'),
               _buildMetricCard(
                 theme: theme,
-                title: 'Planned Hours',
                 subtitle: 'Calculated as Built Up Area × Building Rate',
                 value: currentPlannedHours == 0
                     ? 'Enter a valid BUA to calculate planned hours.'
@@ -523,7 +620,6 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
               _sectionTitle('Hours Split'),
               _buildMetricCard(
                 theme: theme,
-                title: 'Production Hours',
                 subtitle: '85% of total planned hours',
                 value: currentProductionHours == 0
                     ? 'Enter a valid BUA to calculate production hours.'
@@ -532,11 +628,54 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
               const SizedBox(height: 16),
               _buildMetricCard(
                 theme: theme,
-                title: 'Supportive Hours',
                 subtitle: '15% of total planned hours',
                 value: currentSupportiveHours == 0
                     ? 'Enter a valid BUA to calculate supportive hours.'
                     : currentSupportiveHours.toStringAsFixed(2),
+              ),
+              const SizedBox(height: 24),
+              _sectionTitle('Production Breakdown'),
+              _buildProductionDisciplineCard(
+                theme: theme,
+                title: 'Architecture',
+                subtitle: '29% of production hours',
+                value: architectureHours.toStringAsFixed(2),
+              ),
+              _buildProductionDisciplineCard(
+                theme: theme,
+                title: 'Structure',
+                subtitle: '22% of production hours',
+                value: structureHours.toStringAsFixed(2),
+              ),
+              _buildProductionDisciplineCard(
+                theme: theme,
+                title: 'Electrical',
+                subtitle: '23% of production hours',
+                value: electricalHours.toStringAsFixed(2),
+              ),
+              _buildProductionDisciplineCard(
+                theme: theme,
+                title: 'Plumbing',
+                subtitle: '12% of production hours',
+                value: plumbingHours.toStringAsFixed(2),
+              ),
+              _buildProductionDisciplineCard(
+                theme: theme,
+                title: 'HVAC',
+                subtitle: '14% of production hours',
+                value: hvacHours.toStringAsFixed(2),
+              ),
+              _buildProductionDisciplineCard(
+                theme: theme,
+                title: 'QS',
+                subtitle: '10% of Architecture + Structure hours',
+                value: qsHours.toStringAsFixed(2),
+              ),
+              _buildProductionDisciplineCard(
+                theme: theme,
+                title: 'ID',
+                subtitle: 'Temporary placeholder based on ID BUA',
+                value: idHours.toStringAsFixed(2),
               ),
               const SizedBox(height: 24),
               _sectionTitle('Validation Factors'),
@@ -709,6 +848,27 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
                         ),
                         Text(
                           'Supportive Hours: ${_currentSupportiveHours().toStringAsFixed(2)}',
+                        ),
+                        Text(
+                          'Architecture: ${_currentArchitectureHours().toStringAsFixed(2)}',
+                        ),
+                        Text(
+                          'Structure: ${_currentStructureHours().toStringAsFixed(2)}',
+                        ),
+                        Text(
+                          'Electrical: ${_currentElectricalHours().toStringAsFixed(2)}',
+                        ),
+                        Text(
+                          'Plumbing: ${_currentPlumbingHours().toStringAsFixed(2)}',
+                        ),
+                        Text(
+                          'HVAC: ${_currentHvacHours().toStringAsFixed(2)}',
+                        ),
+                        Text(
+                          'QS: ${_currentQsHours().toStringAsFixed(2)}',
+                        ),
+                        Text(
+                          'ID: ${_currentIdHours().toStringAsFixed(2)}',
                         ),
                         Text(
                           'Architecture Validation: ${_project.architectureValidationFactor}',
