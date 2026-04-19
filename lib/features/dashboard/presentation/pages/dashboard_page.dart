@@ -120,8 +120,8 @@ class DashboardPage extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
-            Row(
-              children: const [
+            const Row(
+              children: [
                 Expanded(
                   child: AppMetricCard(
                     title: 'Modules',
