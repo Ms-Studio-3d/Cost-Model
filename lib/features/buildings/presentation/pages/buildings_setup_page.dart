@@ -121,6 +121,20 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
     );
   }
 
+  double _currentProductionHours() {
+    return BuildingRateEngine.calculateProductionHours(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+    );
+  }
+
+  double _currentSupportiveHours() {
+    return BuildingRateEngine.calculateSupportiveHours(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+    );
+  }
+
   String _categoryLabel(ProjectCategory value) {
     switch (value) {
       case ProjectCategory.a:
@@ -258,6 +272,38 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
     );
   }
 
+  Widget _buildMetricCard({
+    required ThemeData theme,
+    required String title,
+    required String subtitle,
+    required String value,
+  }) {
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              subtitle,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: const Color(0xFF6B7280),
+              ),
+            ),
+            const SizedBox(height: 10),
+            Text(
+              value,
+              style: theme.textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+                color: const Color(0xFF111827),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildScopeCard(
     BuildingDiscipline discipline,
     Map<BuildingPhase, ScopeMode> phases,
@@ -341,6 +387,8 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
     final theme = Theme.of(context);
     final currentRate = _currentBuildingRate();
     final currentPlannedHours = _currentPlannedHours();
+    final currentProductionHours = _currentProductionHours();
+    final currentSupportiveHours = _currentSupportiveHours();
 
     return Scaffold(
       appBar: AppBar(
@@ -361,7 +409,7 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                'This screen now includes validation factors, scope matrix, building rate, and planned hours.',
+                'This screen now includes validation factors, scope matrix, building rate, planned hours, production hours, and supportive hours.',
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: const Color(0xFF6B7280),
                 ),
@@ -453,59 +501,42 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
               ),
               const SizedBox(height: 24),
               _sectionTitle('Building Rate'),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Calculated from Category + Built Up Area',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: const Color(0xFF6B7280),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        currentRate == 0
-                            ? 'Enter a valid BUA to calculate rate.'
-                            : currentRate.toStringAsFixed(3),
-                        style: theme.textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          color: const Color(0xFF111827),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              _buildMetricCard(
+                theme: theme,
+                title: 'Building Rate',
+                subtitle: 'Calculated from Category + Built Up Area',
+                value: currentRate == 0
+                    ? 'Enter a valid BUA to calculate rate.'
+                    : currentRate.toStringAsFixed(3),
               ),
               const SizedBox(height: 24),
               _sectionTitle('Planned Hours'),
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Calculated as Built Up Area × Building Rate',
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: const Color(0xFF6B7280),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Text(
-                        currentPlannedHours == 0
-                            ? 'Enter a valid BUA to calculate planned hours.'
-                            : currentPlannedHours.toStringAsFixed(2),
-                        style: theme.textTheme.headlineSmall?.copyWith(
-                          fontWeight: FontWeight.w800,
-                          color: const Color(0xFF111827),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              _buildMetricCard(
+                theme: theme,
+                title: 'Planned Hours',
+                subtitle: 'Calculated as Built Up Area × Building Rate',
+                value: currentPlannedHours == 0
+                    ? 'Enter a valid BUA to calculate planned hours.'
+                    : currentPlannedHours.toStringAsFixed(2),
+              ),
+              const SizedBox(height: 24),
+              _sectionTitle('Hours Split'),
+              _buildMetricCard(
+                theme: theme,
+                title: 'Production Hours',
+                subtitle: '85% of total planned hours',
+                value: currentProductionHours == 0
+                    ? 'Enter a valid BUA to calculate production hours.'
+                    : currentProductionHours.toStringAsFixed(2),
+              ),
+              const SizedBox(height: 16),
+              _buildMetricCard(
+                theme: theme,
+                title: 'Supportive Hours',
+                subtitle: '15% of total planned hours',
+                value: currentSupportiveHours == 0
+                    ? 'Enter a valid BUA to calculate supportive hours.'
+                    : currentSupportiveHours.toStringAsFixed(2),
               ),
               const SizedBox(height: 24),
               _sectionTitle('Validation Factors'),
@@ -672,6 +703,12 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
                         ),
                         Text(
                           'Planned Hours: ${_currentPlannedHours().toStringAsFixed(2)}',
+                        ),
+                        Text(
+                          'Production Hours: ${_currentProductionHours().toStringAsFixed(2)}',
+                        ),
+                        Text(
+                          'Supportive Hours: ${_currentSupportiveHours().toStringAsFixed(2)}',
                         ),
                         Text(
                           'Architecture Validation: ${_project.architectureValidationFactor}',
