@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../shared/widgets/project_type_card.dart';
 import '../../../buildings/presentation/pages/buildings_setup_page.dart';
+import '../../../master_plan/presentation/pages/master_plan_setup_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -11,6 +12,14 @@ class HomePage extends StatelessWidget {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => const BuildingsSetupPage(),
+      ),
+    );
+  }
+
+  void _openMasterPlan(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const MasterPlanSetupPage(),
       ),
     );
   }
@@ -62,7 +71,7 @@ class HomePage extends StatelessWidget {
               description:
                   'Create a pricing scenario for master plan disciplines and land area.',
               icon: Icons.map_rounded,
-              onTap: () => _showComingSoon(context, AppStrings.masterPlan),
+              onTap: () => _openMasterPlan(context),
             ),
             ProjectTypeCard(
               title: AppStrings.combined,
