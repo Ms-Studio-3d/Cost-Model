@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../domain/models/buildings_project.dart';
+import '../widgets/scope_mode_chip.dart';
 
 class BuildingsSetupPage extends StatefulWidget {
   const BuildingsSetupPage({super.key});
@@ -59,6 +60,24 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
     );
   }
 
+  void _updateScope(
+    BuildingDiscipline discipline,
+    BuildingPhase phase,
+    ScopeMode mode,
+  ) {
+    final updatedScope = <BuildingDiscipline, Map<BuildingPhase, ScopeMode>>{};
+
+    for (final entry in _project.scopeMatrix.entries) {
+      updatedScope[entry.key] = Map<BuildingPhase, ScopeMode>.from(entry.value);
+    }
+
+    updatedScope[discipline]![phase] = mode;
+
+    setState(() {
+      _project = _project.copyWith(scopeMatrix: updatedScope);
+    });
+  }
+
   String _categoryLabel(ProjectCategory value) {
     switch (value) {
       case ProjectCategory.a:
@@ -109,6 +128,40 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
     }
   }
 
+  String _disciplineLabel(BuildingDiscipline value) {
+    switch (value) {
+      case BuildingDiscipline.architecture:
+        return 'Architecture';
+      case BuildingDiscipline.structure:
+        return 'Structure';
+      case BuildingDiscipline.electrical:
+        return 'Electrical';
+      case BuildingDiscipline.plumbing:
+        return 'Plumbing';
+      case BuildingDiscipline.hvac:
+        return 'HVAC';
+      case BuildingDiscipline.qs:
+        return 'QS';
+      case BuildingDiscipline.id:
+        return 'ID';
+    }
+  }
+
+  String _phaseLabel(BuildingPhase value) {
+    switch (value) {
+      case BuildingPhase.concept:
+        return 'Concept';
+      case BuildingPhase.schematic:
+        return 'Schematic';
+      case BuildingPhase.permits:
+        return 'Permits';
+      case BuildingPhase.detailedDesign:
+        return 'Detailed Design';
+      case BuildingPhase.tenderIfc:
+        return 'Tender / IFC';
+    }
+  }
+
   InputDecoration _decoration(String label, {String? hint}) {
     return InputDecoration(
       labelText: label,
@@ -145,6 +198,84 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
     );
   }
 
+  Widget _buildScopeCard(
+    BuildingDiscipline discipline,
+    Map<BuildingPhase, ScopeMode> phases,
+  ) {
+    final theme = Theme.of(context);
+
+    return Card(
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              _disciplineLabel(discipline),
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
+                color: const Color(0xFF111827),
+              ),
+            ),
+            const SizedBox(height: 14),
+            ...BuildingPhase.values.map((phase) {
+              final selectedMode = phases[phase] ?? ScopeMode.off;
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 14),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      _phaseLabel(phase),
+                      style: theme.textTheme.bodyLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: const Color(0xFF374151),
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: ScopeMode.values.map((mode) {
+                        return ScopeModeChip(
+                          label: scopeModeLabel(mode),
+                          selected: selectedMode == mode,
+                          onTap: () => _updateScope(discipline, phase, mode),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
+  String _scopeSummary() {
+    int fullCount = 0;
+    int validationCount = 0;
+    int offCount = 0;
+
+    for (final discipline in _project.scopeMatrix.values) {
+      for (final mode in discipline.values) {
+        switch (mode) {
+          case ScopeMode.full:
+            fullCount++;
+          case ScopeMode.validation:
+            validationCount++;
+          case ScopeMode.off:
+            offCount++;
+        }
+      }
+    }
+
+    return 'Full: $fullCount • Validation: $validationCount • Off: $offCount';
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -168,7 +299,7 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                'This is the first clean version of the buildings input form.',
+                'This screen now includes the buildings scope matrix.',
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: const Color(0xFF6B7280),
                 ),
@@ -301,6 +432,26 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
                   });
                 },
               ),
+              const SizedBox(height: 24),
+              _sectionTitle('Scope Matrix'),
+              Text(
+                'This replaces the Excel Y / V / N logic with Full / Validation / Off.',
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: const Color(0xFF6B7280),
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                _scopeSummary(),
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: const Color(0xFF374151),
+                ),
+              ),
+              const SizedBox(height: 12),
+              ..._project.scopeMatrix.entries.map(
+                (entry) => _buildScopeCard(entry.key, entry.value),
+              ),
               const SizedBox(height: 28),
               ElevatedButton(
                 onPressed: _saveDraft,
@@ -341,6 +492,8 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
                         Text(
                           'Currency: ${_currencyLabel(_project.currency)}',
                         ),
+                        const SizedBox(height: 8),
+                        Text('Scope Summary: ${_scopeSummary()}'),
                       ],
                     ),
                   ),
