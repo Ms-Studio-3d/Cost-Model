@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../domain/models/buildings_project.dart';
 import '../../domain/services/building_rate_engine.dart';
 import '../widgets/scope_mode_chip.dart';
+
 class BuildingsSetupPage extends StatefulWidget {
   const BuildingsSetupPage({super.key});
 
@@ -100,6 +101,16 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
     setState(() {
       _project = _project.copyWith(scopeMatrix: updatedScope);
     });
+  }
+
+  double _currentBuildingRate() {
+    final bua =
+        double.tryParse(_buaController.text.trim()) ?? _project.builtUpArea;
+
+    return BuildingRateEngine.calculate(
+      category: _project.projectCategory,
+      builtUpArea: bua,
+    );
   }
 
   String _categoryLabel(ProjectCategory value) {
@@ -320,6 +331,7 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final currentRate = _currentBuildingRate();
 
     return Scaffold(
       appBar: AppBar(
@@ -340,7 +352,7 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                'This screen now includes validation factors and scope matrix.',
+                'This screen now includes validation factors, scope matrix, and building rate.',
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: const Color(0xFF6B7280),
                 ),
@@ -415,6 +427,7 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
                   hint: 'Enter total built up area',
                 ),
                 validator: (value) => _requiredNumber(value, 'Built Up Area'),
+                onChanged: (_) => setState(() {}),
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -428,6 +441,34 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
                 ),
                 validator: (value) =>
                     _requiredNumber(value, 'ID Built Up Area'),
+              ),
+              const SizedBox(height: 24),
+              _sectionTitle('Building Rate'),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Calculated from Category + Built Up Area',
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: const Color(0xFF6B7280),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        currentRate == 0
+                            ? 'Enter a valid BUA to calculate rate.'
+                            : currentRate.toStringAsFixed(3),
+                        style: theme.textTheme.headlineSmall?.copyWith(
+                          fontWeight: FontWeight.w800,
+                          color: const Color(0xFF111827),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
               const SizedBox(height: 24),
               _sectionTitle('Validation Factors'),
@@ -589,6 +630,9 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
                         ),
                         Text('BUA: ${_project.builtUpArea}'),
                         Text('ID BUA: ${_project.idBuiltUpArea}'),
+                        Text(
+                          'Building Rate: ${_currentBuildingRate().toStringAsFixed(3)}',
+                        ),
                         Text(
                           'Architecture Validation: ${_project.architectureValidationFactor}',
                         ),
