@@ -112,6 +112,16 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
         _project.idBuiltUpArea;
   }
 
+  double _currentProfitMargin() {
+    return double.tryParse(_profitMarginController.text.trim()) ??
+        _project.profitMargin;
+  }
+
+  double _currentOtherExpenses() {
+    return double.tryParse(_otherExpensesController.text.trim()) ??
+        _project.otherExpenses;
+  }
+
   double _currentArchitectureValidation() {
     return double.tryParse(_architectureValidationController.text.trim()) ??
         _project.architectureValidationFactor;
@@ -237,6 +247,107 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
       category: _project.projectCategory,
       builtUpArea: _currentBuiltUpArea(),
       projectSystem: _project.projectSystem,
+    );
+  }
+
+  double _currentArchitectureCost() {
+    return BuildingRateEngine.calculateArchitectureCost(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+    );
+  }
+
+  double _currentStructureCost() {
+    return BuildingRateEngine.calculateStructureCost(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+    );
+  }
+
+  double _currentElectricalCost() {
+    return BuildingRateEngine.calculateElectricalCost(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+    );
+  }
+
+  double _currentPlumbingCost() {
+    return BuildingRateEngine.calculatePlumbingCost(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+    );
+  }
+
+  double _currentHvacCost() {
+    return BuildingRateEngine.calculateHvacCost(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+    );
+  }
+
+  double _currentQsCost() {
+    return BuildingRateEngine.calculateQsCost(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+    );
+  }
+
+  double _currentIdCost() {
+    return BuildingRateEngine.calculateIdCost(
+      idBuiltUpArea: _currentIdBuiltUpArea(),
+    );
+  }
+
+  double _currentProjectManagementCost() {
+    return BuildingRateEngine.calculateProjectManagementCost(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+      projectSystem: _project.projectSystem,
+    );
+  }
+
+  double _currentQualityControlCost() {
+    return BuildingRateEngine.calculateQualityControlCost(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+      projectSystem: _project.projectSystem,
+    );
+  }
+
+  double _currentBimCadCost() {
+    return BuildingRateEngine.calculateBimCadCost(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+      projectSystem: _project.projectSystem,
+    );
+  }
+
+  double _currentDocumentControlCost() {
+    return BuildingRateEngine.calculateDocumentControlCost(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+      projectSystem: _project.projectSystem,
+    );
+  }
+
+  double _currentTotalCost() {
+    return BuildingRateEngine.calculateTotalCost(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+      idBuiltUpArea: _currentIdBuiltUpArea(),
+      projectSystem: _project.projectSystem,
+      otherExpenses: _currentOtherExpenses(),
+    );
+  }
+
+  double _currentFinalPrice() {
+    return BuildingRateEngine.calculateFinalPrice(
+      category: _project.projectCategory,
+      builtUpArea: _currentBuiltUpArea(),
+      idBuiltUpArea: _currentIdBuiltUpArea(),
+      projectSystem: _project.projectSystem,
+      otherExpenses: _currentOtherExpenses(),
+      profitMargin: _currentProfitMargin(),
     );
   }
 
@@ -387,6 +498,10 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
 
   String _bimCadLabel() {
     return _project.projectSystem == ProjectSystem.cad ? 'CAD' : 'BIM';
+  }
+
+  String _formatCurrency(double value) {
+    return '${value.toStringAsFixed(2)} ${_currencyLabel(_project.currency)}';
   }
 
   InputDecoration _decoration(String label, {String? hint}) {
@@ -694,6 +809,9 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
     final qsPhaseHours = _qsPhaseHours();
     final idPhaseHours = _idPhaseHours();
 
+    final totalCost = _currentTotalCost();
+    final finalPrice = _currentFinalPrice();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Buildings Setup'),
@@ -713,7 +831,7 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
               ),
               const SizedBox(height: 8),
               Text(
-                'This screen now includes supportive departments based on the selected project system.',
+                'This screen now includes costing and pricing.',
                 style: theme.textTheme.bodyLarge?.copyWith(
                   color: const Color(0xFF6B7280),
                 ),
@@ -1024,6 +1142,7 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
                   hint: 'Default 30',
                 ),
                 validator: (value) => _requiredNumber(value, 'Profit Margin'),
+                onChanged: (_) => setState(() {}),
               ),
               const SizedBox(height: 16),
               TextFormField(
@@ -1036,6 +1155,7 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
                   hint: 'Default 0',
                 ),
                 validator: (value) => _requiredNumber(value, 'Other Expenses'),
+                onChanged: (_) => setState(() {}),
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<Currency>(
@@ -1055,6 +1175,93 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
                     _project = _project.copyWith(currency: value);
                   });
                 },
+              ),
+              const SizedBox(height: 24),
+              _sectionTitle('Costing & Pricing'),
+              _buildMetricCard(
+                theme: theme,
+                subtitle: 'Total cost including all departments and other expenses',
+                value: _formatCurrency(totalCost),
+              ),
+              const SizedBox(height: 16),
+              _buildMetricCard(
+                theme: theme,
+                subtitle: 'Final price after applying profit margin',
+                value: _formatCurrency(finalPrice),
+              ),
+              const SizedBox(height: 24),
+              _sectionTitle('Cost Breakdown'),
+              _buildProductionDisciplineCard(
+                theme: theme,
+                title: 'Architecture Cost',
+                subtitle: 'Hours × cost/hour',
+                value: _formatCurrency(_currentArchitectureCost()),
+              ),
+              _buildProductionDisciplineCard(
+                theme: theme,
+                title: 'Structure Cost',
+                subtitle: 'Hours × cost/hour',
+                value: _formatCurrency(_currentStructureCost()),
+              ),
+              _buildProductionDisciplineCard(
+                theme: theme,
+                title: 'Electrical Cost',
+                subtitle: 'Hours × cost/hour',
+                value: _formatCurrency(_currentElectricalCost()),
+              ),
+              _buildProductionDisciplineCard(
+                theme: theme,
+                title: 'Plumbing Cost',
+                subtitle: 'Hours × cost/hour',
+                value: _formatCurrency(_currentPlumbingCost()),
+              ),
+              _buildProductionDisciplineCard(
+                theme: theme,
+                title: 'HVAC Cost',
+                subtitle: 'Hours × cost/hour',
+                value: _formatCurrency(_currentHvacCost()),
+              ),
+              _buildProductionDisciplineCard(
+                theme: theme,
+                title: 'QS Cost',
+                subtitle: 'Hours × cost/hour',
+                value: _formatCurrency(_currentQsCost()),
+              ),
+              _buildProductionDisciplineCard(
+                theme: theme,
+                title: 'ID Cost',
+                subtitle: 'Hours × cost/hour',
+                value: _formatCurrency(_currentIdCost()),
+              ),
+              _buildProductionDisciplineCard(
+                theme: theme,
+                title: 'Project Management Cost',
+                subtitle: 'Supportive department cost',
+                value: _formatCurrency(_currentProjectManagementCost()),
+              ),
+              _buildProductionDisciplineCard(
+                theme: theme,
+                title: 'Quality Control Cost',
+                subtitle: 'Supportive department cost',
+                value: _formatCurrency(_currentQualityControlCost()),
+              ),
+              _buildProductionDisciplineCard(
+                theme: theme,
+                title: '${_bimCadLabel()} Cost',
+                subtitle: 'Supportive department cost',
+                value: _formatCurrency(_currentBimCadCost()),
+              ),
+              _buildProductionDisciplineCard(
+                theme: theme,
+                title: 'Document Control Cost',
+                subtitle: 'Supportive department cost',
+                value: _formatCurrency(_currentDocumentControlCost()),
+              ),
+              _buildProductionDisciplineCard(
+                theme: theme,
+                title: 'Other Expenses',
+                subtitle: 'Direct additional expenses',
+                value: _formatCurrency(_currentOtherExpenses()),
               ),
               const SizedBox(height: 24),
               _sectionTitle('Scope Matrix'),
@@ -1124,37 +1331,10 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
                           'Supportive Hours: ${_currentSupportiveHours().toStringAsFixed(2)}',
                         ),
                         Text(
-                          'Architecture: ${_currentArchitectureHours().toStringAsFixed(2)}',
+                          'Total Cost: ${_formatCurrency(_currentTotalCost())}',
                         ),
                         Text(
-                          'Structure: ${_currentStructureHours().toStringAsFixed(2)}',
-                        ),
-                        Text(
-                          'Electrical: ${_currentElectricalHours().toStringAsFixed(2)}',
-                        ),
-                        Text(
-                          'Plumbing: ${_currentPlumbingHours().toStringAsFixed(2)}',
-                        ),
-                        Text(
-                          'HVAC: ${_currentHvacHours().toStringAsFixed(2)}',
-                        ),
-                        Text(
-                          'QS: ${_currentQsHours().toStringAsFixed(2)}',
-                        ),
-                        Text(
-                          'ID: ${_currentIdHours().toStringAsFixed(2)}',
-                        ),
-                        Text(
-                          'PM: ${_currentProjectManagementHours().toStringAsFixed(2)}',
-                        ),
-                        Text(
-                          'QC: ${_currentQualityControlHours().toStringAsFixed(2)}',
-                        ),
-                        Text(
-                          '${_bimCadLabel()}: ${_currentBimCadHours().toStringAsFixed(2)}',
-                        ),
-                        Text(
-                          'Document Control: ${_currentDocumentControlHours().toStringAsFixed(2)}',
+                          'Final Price: ${_formatCurrency(_currentFinalPrice())}',
                         ),
                         Text(
                           'Architecture Validation: ${_currentArchitectureValidation()}',
@@ -1168,8 +1348,10 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
                         Text(
                           'MEP Validation: ${_currentMepValidation()}',
                         ),
-                        Text('Profit Margin: ${_project.profitMargin}%'),
-                        Text('Other Expenses: ${_project.otherExpenses}'),
+                        Text('Profit Margin: ${_currentProfitMargin()}%'),
+                        Text(
+                          'Other Expenses: ${_formatCurrency(_currentOtherExpenses())}',
+                        ),
                         Text(
                           'Currency: ${_currencyLabel(_project.currency)}',
                         ),
