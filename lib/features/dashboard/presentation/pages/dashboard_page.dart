@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../shared/widgets/app_metric_card.dart';
 import '../../../buildings/presentation/pages/buildings_setup_page.dart';
 import '../../../combined/presentation/pages/combined_setup_page.dart';
 import '../../../master_plan/presentation/pages/master_plan_setup_page.dart';
@@ -68,41 +69,6 @@ class DashboardPage extends StatelessWidget {
     );
   }
 
-  Widget _summaryStat({
-    required BuildContext context,
-    required String title,
-    required String value,
-  }) {
-    final theme = Theme.of(context);
-
-    return Expanded(
-      child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(16),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                title,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: const Color(0xFF6B7280),
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                value,
-                style: theme.textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: const Color(0xFF111827),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   void _openBuildings(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
@@ -155,17 +121,19 @@ class DashboardPage extends StatelessWidget {
             ),
             const SizedBox(height: 24),
             Row(
-              children: [
-                _summaryStat(
-                  context: context,
-                  title: 'Modules',
-                  value: '3',
+              children: const [
+                Expanded(
+                  child: AppMetricCard(
+                    title: 'Modules',
+                    value: '3',
+                  ),
                 ),
-                const SizedBox(width: 12),
-                _summaryStat(
-                  context: context,
-                  title: 'Status',
-                  value: 'Ready',
+                SizedBox(width: 12),
+                Expanded(
+                  child: AppMetricCard(
+                    title: 'Status',
+                    value: 'Ready',
+                  ),
                 ),
               ],
             ),
