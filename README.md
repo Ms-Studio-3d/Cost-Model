@@ -6,7 +6,8 @@ Mobile app for architecture cost modeling and pricing.
 - Buildings
 - Master Plan
 - Combined
-- Results dashboard
+- Dashboard
+- Splash
 
 ## Tech
 - Flutter
