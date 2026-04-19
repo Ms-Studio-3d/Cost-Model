@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../shared/widgets/project_type_card.dart';
 import '../../../buildings/presentation/pages/buildings_setup_page.dart';
+import '../../../combined/presentation/pages/combined_setup_page.dart';
 import '../../../master_plan/presentation/pages/master_plan_setup_page.dart';
 
 class HomePage extends StatelessWidget {
@@ -24,10 +25,10 @@ class HomePage extends StatelessWidget {
     );
   }
 
-  void _showComingSoon(BuildContext context, String projectType) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('$projectType screen is coming next.'),
+  void _openCombined(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const CombinedSetupPage(),
       ),
     );
   }
@@ -78,7 +79,7 @@ class HomePage extends StatelessWidget {
               description:
                   'Combine buildings and master plan pricing in one project.',
               icon: Icons.dashboard_customize_rounded,
-              onTap: () => _showComingSoon(context, AppStrings.combined),
+              onTap: () => _openCombined(context),
             ),
           ],
         ),
