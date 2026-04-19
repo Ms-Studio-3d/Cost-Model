@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:cost_model/features/buildings/domain/models/buildings_project_input.dart';
-import 'package:cost_model/features/buildings/presentation/pages/buildings_result_page.dart';
-import 'package:cost_model/shared/widgets/app_text_field.dart';
+
+import '../../domain/models/buildings_project.dart';
 
 class BuildingsSetupPage extends StatefulWidget {
   const BuildingsSetupPage({super.key});
@@ -11,20 +10,26 @@ class BuildingsSetupPage extends StatefulWidget {
 }
 
 class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
-  final _projectNameController = TextEditingController();
-  final _buaController = TextEditingController();
-  final _idBuaController = TextEditingController();
-  final _profitMarginController = TextEditingController(text: '30');
-  final _otherExpensesController = TextEditingController(text: '0');
+  final _formKey = GlobalKey<FormState>();
 
-  String _selectedCategory = 'C';
-  String _selectedProjectType = 'Mixed Use';
-  String _selectedProjectSystem = 'BIM';
-  String _selectedCurrency = 'EGP';
+  late final TextEditingController _buaController;
+  late final TextEditingController _idBuaController;
+  late final TextEditingController _profitMarginController;
+  late final TextEditingController _otherExpensesController;
+
+  BuildingsProject _project = const BuildingsProject();
+
+  @override
+  void initState() {
+    super.initState();
+    _buaController = TextEditingController();
+    _idBuaController = TextEditingController();
+    _profitMarginController = TextEditingController(text: '30');
+    _otherExpensesController = TextEditingController(text: '0');
+  }
 
   @override
   void dispose() {
-    _projectNameController.dispose();
     _buaController.dispose();
     _idBuaController.dispose();
     _profitMarginController.dispose();
@@ -32,28 +37,110 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
     super.dispose();
   }
 
-  double _parseNumber(String value) {
-    return double.tryParse(value.trim()) ?? 0;
-  }
+  void _saveDraft() {
+    if (!_formKey.currentState!.validate()) return;
 
-  void _calculate() {
-    final input = BuildingsProjectInput(
-      projectName: _projectNameController.text.trim().isEmpty
-          ? 'Untitled Building Project'
-          : _projectNameController.text.trim(),
-      category: _selectedCategory,
-      projectType: _selectedProjectType,
-      projectSystem: _selectedProjectSystem,
-      builtUpArea: _parseNumber(_buaController.text),
-      idBuiltUpArea: _parseNumber(_idBuaController.text),
-      profitMargin: _parseNumber(_profitMarginController.text),
-      otherExpenses: _parseNumber(_otherExpensesController.text),
-      currency: _selectedCurrency,
+    final project = _project.copyWith(
+      builtUpArea: double.tryParse(_buaController.text.trim()) ?? 0,
+      idBuiltUpArea: double.tryParse(_idBuaController.text.trim()) ?? 0,
+      profitMargin: double.tryParse(_profitMarginController.text.trim()) ?? 0,
+      otherExpenses:
+          double.tryParse(_otherExpensesController.text.trim()) ?? 0,
     );
 
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => BuildingsResultPage(input: input),
+    setState(() {
+      _project = project;
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Buildings project data saved locally.'),
+      ),
+    );
+  }
+
+  String _categoryLabel(ProjectCategory value) {
+    switch (value) {
+      case ProjectCategory.a:
+        return 'A';
+      case ProjectCategory.b:
+        return 'B';
+      case ProjectCategory.c:
+        return 'C';
+    }
+  }
+
+  String _projectTypeLabel(BuildingProjectType value) {
+    switch (value) {
+      case BuildingProjectType.allProjectTypes:
+        return 'All Project Types';
+      case BuildingProjectType.administrative:
+        return 'Administrative';
+      case BuildingProjectType.factory:
+        return 'Factory';
+      case BuildingProjectType.mixedUse:
+        return 'Mixed Use';
+      case BuildingProjectType.residential:
+        return 'Residential';
+    }
+  }
+
+  String _projectSystemLabel(ProjectSystem value) {
+    switch (value) {
+      case ProjectSystem.cad:
+        return 'CAD';
+      case ProjectSystem.bim:
+        return 'BIM';
+      case ProjectSystem.both:
+        return 'BOTH';
+    }
+  }
+
+  String _currencyLabel(Currency value) {
+    switch (value) {
+      case Currency.egp:
+        return 'EGP';
+      case Currency.sar:
+        return 'SAR';
+      case Currency.aed:
+        return 'AED';
+      case Currency.usd:
+        return 'USD';
+    }
+  }
+
+  InputDecoration _decoration(String label, {String? hint}) {
+    return InputDecoration(
+      labelText: label,
+      hintText: hint,
+    );
+  }
+
+  String? _requiredNumber(String? value, String fieldName) {
+    if (value == null || value.trim().isEmpty) {
+      return '$fieldName is required';
+    }
+
+    final parsed = double.tryParse(value.trim());
+    if (parsed == null) {
+      return 'Enter a valid number';
+    }
+
+    if (parsed < 0) {
+      return '$fieldName cannot be negative';
+    }
+
+    return null;
+  }
+
+  Widget _sectionTitle(String title) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12, top: 8),
+      child: Text(
+        title,
+        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+              fontWeight: FontWeight.w700,
+            ),
       ),
     );
   }
@@ -67,132 +154,200 @@ class _BuildingsSetupPageState extends State<BuildingsSetupPage> {
         title: const Text('Buildings Setup'),
       ),
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
-            Text(
-              'Project Information',
-              style: theme.textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.w800,
-                color: const Color(0xFF111827),
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.all(20),
+            children: [
+              Text(
+                'Enter the main project inputs',
+                style: theme.textTheme.headlineSmall?.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: const Color(0xFF111827),
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Enter the main building pricing inputs.',
-              style: theme.textTheme.bodyLarge?.copyWith(
-                color: const Color(0xFF6B7280),
+              const SizedBox(height: 8),
+              Text(
+                'This is the first clean version of the buildings input form.',
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  color: const Color(0xFF6B7280),
+                ),
               ),
-            ),
-            const SizedBox(height: 24),
-            AppTextField(
-              controller: _projectNameController,
-              label: 'Project Name',
-              hint: 'Enter project name',
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              initialValue: _selectedCategory,
-              decoration: const InputDecoration(labelText: 'Project Category'),
-              items: const [
-                DropdownMenuItem(value: 'A', child: Text('A')),
-                DropdownMenuItem(value: 'B', child: Text('B')),
-                DropdownMenuItem(value: 'C', child: Text('C')),
-              ],
-              onChanged: (value) {
-                setState(() => _selectedCategory = value ?? 'C');
-              },
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              initialValue: _selectedProjectType,
-              decoration: const InputDecoration(labelText: 'Project Type'),
-              items: const [
-                DropdownMenuItem(
-                  value: 'All Project Type',
-                  child: Text('All Project Type'),
+              const SizedBox(height: 24),
+              _sectionTitle('Project Basics'),
+              DropdownButtonFormField<ProjectCategory>(
+                initialValue: _project.projectCategory,
+                decoration: _decoration('Project Category'),
+                items: ProjectCategory.values
+                    .map(
+                      (value) => DropdownMenuItem(
+                        value: value,
+                        child: Text(_categoryLabel(value)),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) {
+                  if (value == null) return;
+                  setState(() {
+                    _project = _project.copyWith(projectCategory: value);
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<BuildingProjectType>(
+                initialValue: _project.projectType,
+                decoration: _decoration('Project Type'),
+                items: BuildingProjectType.values
+                    .map(
+                      (value) => DropdownMenuItem(
+                        value: value,
+                        child: Text(_projectTypeLabel(value)),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) {
+                  if (value == null) return;
+                  setState(() {
+                    _project = _project.copyWith(projectType: value);
+                  });
+                },
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<ProjectSystem>(
+                initialValue: _project.projectSystem,
+                decoration: _decoration('Project System'),
+                items: ProjectSystem.values
+                    .map(
+                      (value) => DropdownMenuItem(
+                        value: value,
+                        child: Text(_projectSystemLabel(value)),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) {
+                  if (value == null) return;
+                  setState(() {
+                    _project = _project.copyWith(projectSystem: value);
+                  });
+                },
+              ),
+              const SizedBox(height: 24),
+              _sectionTitle('Areas'),
+              TextFormField(
+                controller: _buaController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
                 ),
-                DropdownMenuItem(
-                  value: 'Administrative',
-                  child: Text('Administrative'),
+                decoration: _decoration(
+                  'Built Up Area',
+                  hint: 'Enter total built up area',
                 ),
-                DropdownMenuItem(
-                  value: 'Factory',
-                  child: Text('Factory'),
+                validator: (value) => _requiredNumber(value, 'Built Up Area'),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _idBuaController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
                 ),
-                DropdownMenuItem(
-                  value: 'Mixed Use',
-                  child: Text('Mixed Use'),
+                decoration: _decoration(
+                  'ID Built Up Area',
+                  hint: 'Enter interior design built up area',
                 ),
-                DropdownMenuItem(
-                  value: 'Residential',
-                  child: Text('Residential'),
+                validator: (value) =>
+                    _requiredNumber(value, 'ID Built Up Area'),
+              ),
+              const SizedBox(height: 24),
+              _sectionTitle('Pricing'),
+              TextFormField(
+                controller: _profitMarginController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
                 ),
-              ],
-              onChanged: (value) {
-                setState(() => _selectedProjectType = value ?? 'Mixed Use');
-              },
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              initialValue: _selectedProjectSystem,
-              decoration: const InputDecoration(labelText: 'Project System'),
-              items: const [
-                DropdownMenuItem(value: 'CAD', child: Text('CAD')),
-                DropdownMenuItem(value: 'BIM', child: Text('BIM')),
-                DropdownMenuItem(value: 'BOTH', child: Text('BOTH')),
-              ],
-              onChanged: (value) {
-                setState(() => _selectedProjectSystem = value ?? 'BIM');
-              },
-            ),
-            const SizedBox(height: 16),
-            AppTextField(
-              controller: _buaController,
-              label: 'Built Up Area',
-              hint: 'Enter BUA',
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 16),
-            AppTextField(
-              controller: _idBuaController,
-              label: 'ID Built Up Area',
-              hint: 'Enter ID BUA',
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 16),
-            AppTextField(
-              controller: _profitMarginController,
-              label: 'Profit Margin %',
-              hint: 'Enter profit margin',
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 16),
-            AppTextField(
-              controller: _otherExpensesController,
-              label: 'Other Expenses',
-              hint: 'Enter other expenses',
-              keyboardType: TextInputType.number,
-            ),
-            const SizedBox(height: 16),
-            DropdownButtonFormField<String>(
-              initialValue: _selectedCurrency,
-              decoration: const InputDecoration(labelText: 'Currency'),
-              items: const [
-                DropdownMenuItem(value: 'EGP', child: Text('EGP')),
-                DropdownMenuItem(value: 'SAR', child: Text('SAR')),
-                DropdownMenuItem(value: 'AED', child: Text('AED')),
-              ],
-              onChanged: (value) {
-                setState(() => _selectedCurrency = value ?? 'EGP');
-              },
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: _calculate,
-              child: const Text('Calculate Buildings'),
-            ),
-          ],
+                decoration: _decoration(
+                  'Profit Margin %',
+                  hint: 'Default 30',
+                ),
+                validator: (value) => _requiredNumber(value, 'Profit Margin'),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _otherExpensesController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                decoration: _decoration(
+                  'Other Expenses',
+                  hint: 'Default 0',
+                ),
+                validator: (value) => _requiredNumber(value, 'Other Expenses'),
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<Currency>(
+                initialValue: _project.currency,
+                decoration: _decoration('Currency'),
+                items: Currency.values
+                    .map(
+                      (value) => DropdownMenuItem(
+                        value: value,
+                        child: Text(_currencyLabel(value)),
+                      ),
+                    )
+                    .toList(),
+                onChanged: (value) {
+                  if (value == null) return;
+                  setState(() {
+                    _project = _project.copyWith(currency: value);
+                  });
+                },
+              ),
+              const SizedBox(height: 28),
+              ElevatedButton(
+                onPressed: _saveDraft,
+                child: const Text('Save and Continue'),
+              ),
+              const SizedBox(height: 16),
+              Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(16),
+                  child: DefaultTextStyle(
+                    style: theme.textTheme.bodyMedium!.copyWith(
+                      color: const Color(0xFF374151),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Current Draft',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: const Color(0xFF111827),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          'Category: ${_categoryLabel(_project.projectCategory)}',
+                        ),
+                        Text(
+                          'Type: ${_projectTypeLabel(_project.projectType)}',
+                        ),
+                        Text(
+                          'System: ${_projectSystemLabel(_project.projectSystem)}',
+                        ),
+                        Text('BUA: ${_project.builtUpArea}'),
+                        Text('ID BUA: ${_project.idBuiltUpArea}'),
+                        Text('Profit Margin: ${_project.profitMargin}%'),
+                        Text('Other Expenses: ${_project.otherExpenses}'),
+                        Text(
+                          'Currency: ${_currencyLabel(_project.currency)}',
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
