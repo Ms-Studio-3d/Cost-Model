@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../domain/models/master_plan_project.dart';
 import '../../domain/services/master_plan_engine.dart';
-import '../pages/master_plan_results_page.dart';
+import 'master_plan_results_page.dart';
 
 class MasterPlanSetupPage extends StatefulWidget {
   const MasterPlanSetupPage({super.key});
