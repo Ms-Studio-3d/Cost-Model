@@ -26,7 +26,6 @@ class _CombinedSetupPageState extends State<CombinedSetupPage> {
   late final TextEditingController _masterPlanProfitMarginController;
   late final TextEditingController _masterPlanOtherExpensesController;
 
-  
   CombinedProject _project = CombinedProject(
     buildingsProject: const b_models.BuildingsProject(),
     masterPlanProject: const mp_models.MasterPlanProject(),
