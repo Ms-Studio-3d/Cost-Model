@@ -1,15 +1,34 @@
 import 'package:flutter/material.dart';
 
+import '../../../../core/constants/app_strings.dart';
 import '../../../../shared/widgets/project_type_card.dart';
-import '../../../dashboard/presentation/pages/dashboard_page.dart';
+import '../../../buildings/presentation/pages/buildings_setup_page.dart';
+import '../../../combined/presentation/pages/combined_setup_page.dart';
+import '../../../master_plan/presentation/pages/master_plan_setup_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
 
-  void _openDashboard(BuildContext context) {
+  void _openBuildings(BuildContext context) {
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => const DashboardPage(),
+        builder: (_) => const BuildingsSetupPage(),
+      ),
+    );
+  }
+
+  void _openMasterPlan(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const MasterPlanSetupPage(),
+      ),
+    );
+  }
+
+  void _openCombined(BuildContext context) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => const CombinedSetupPage(),
       ),
     );
   }
@@ -20,14 +39,14 @@ class HomePage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Cost Model'),
+        title: const Text(AppStrings.appName),
       ),
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
             Text(
-              'Start Pricing',
+              AppStrings.startNewProject,
               style: theme.textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.w800,
                 color: const Color(0xFF111827),
@@ -35,48 +54,32 @@ class HomePage extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              'Choose the dashboard to access all pricing modules in one place.',
+              AppStrings.appSubtitle,
               style: theme.textTheme.bodyLarge?.copyWith(
                 color: const Color(0xFF6B7280),
               ),
             ),
             const SizedBox(height: 24),
             ProjectTypeCard(
-              title: 'Open Dashboard',
+              title: AppStrings.buildings,
               description:
-                  'Access Buildings, Master Plan, and Combined modules from one place.',
-              icon: Icons.space_dashboard_rounded,
-              onTap: () => _openDashboard(context),
+                  'Create a pricing scenario for building disciplines and phases.',
+              icon: Icons.apartment_rounded,
+              onTap: () => _openBuildings(context),
             ),
-            const SizedBox(height: 24),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(18),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'What is included',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w800,
-                        color: const Color(0xFF111827),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      '• Buildings module\n'
-                      '• Master Plan module\n'
-                      '• Combined module\n'
-                      '• Results pages\n'
-                      '• Costing and pricing calculations',
-                      style: theme.textTheme.bodyMedium?.copyWith(
-                        color: const Color(0xFF374151),
-                        height: 1.5,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+            ProjectTypeCard(
+              title: AppStrings.masterPlan,
+              description:
+                  'Create a pricing scenario for master plan disciplines and land area.',
+              icon: Icons.map_rounded,
+              onTap: () => _openMasterPlan(context),
+            ),
+            ProjectTypeCard(
+              title: AppStrings.combined,
+              description:
+                  'Combine buildings and master plan pricing in one project.',
+              icon: Icons.dashboard_customize_rounded,
+              onTap: () => _openCombined(context),
             ),
           ],
         ),
