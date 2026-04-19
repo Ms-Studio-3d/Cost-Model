@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 
 import '../../domain/models/buildings_project.dart';
+import '../../domain/services/building_rate_engine.dart';
 import '../widgets/scope_mode_chip.dart';
-
 class BuildingsSetupPage extends StatefulWidget {
   const BuildingsSetupPage({super.key});
 
