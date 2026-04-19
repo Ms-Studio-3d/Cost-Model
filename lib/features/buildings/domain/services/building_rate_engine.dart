@@ -23,6 +23,51 @@ class BuildingRateEngine {
   static const double hvacShare = 0.14;
   static const double qsShareFromArchAndStructure = 0.10;
 
+  static const double architectureValidationDefault = 0.5;
+  static const double structureValidationDefault = 0.5;
+  static const double idValidationDefault = 0.5;
+  static const double mepValidationDefault = 0.5;
+
+  static const Map<BuildingPhase, double> architecturePhaseProfile = {
+    BuildingPhase.concept: 0.15,
+    BuildingPhase.schematic: 0.20,
+    BuildingPhase.permits: 0.00,
+    BuildingPhase.detailedDesign: 0.30,
+    BuildingPhase.tenderIfc: 0.35,
+  };
+
+  static const Map<BuildingPhase, double> structurePhaseProfile = {
+    BuildingPhase.concept: 0.01,
+    BuildingPhase.schematic: 0.24,
+    BuildingPhase.permits: 0.00,
+    BuildingPhase.detailedDesign: 0.35,
+    BuildingPhase.tenderIfc: 0.40,
+  };
+
+  static const Map<BuildingPhase, double> mepPhaseProfile = {
+    BuildingPhase.concept: 0.01,
+    BuildingPhase.schematic: 0.24,
+    BuildingPhase.permits: 0.00,
+    BuildingPhase.detailedDesign: 0.35,
+    BuildingPhase.tenderIfc: 0.40,
+  };
+
+  static const Map<BuildingPhase, double> qsPhaseProfile = {
+    BuildingPhase.concept: 0.00,
+    BuildingPhase.schematic: 0.00,
+    BuildingPhase.permits: 0.00,
+    BuildingPhase.detailedDesign: 0.50,
+    BuildingPhase.tenderIfc: 0.50,
+  };
+
+  static const Map<BuildingPhase, double> idPhaseProfile = {
+    BuildingPhase.concept: 0.20,
+    BuildingPhase.schematic: 0.25,
+    BuildingPhase.permits: 0.00,
+    BuildingPhase.detailedDesign: 0.25,
+    BuildingPhase.tenderIfc: 0.30,
+  };
+
   static const List<CurvePoint> _categoryA = [
     CurvePoint(area: 5000, rate: 1.20),
     CurvePoint(area: 15000, rate: 1.00),
@@ -206,5 +251,168 @@ class BuildingRateEngine {
     if (idBuiltUpArea <= 0) return 0;
 
     return idBuiltUpArea * 0.35;
+  }
+
+  static Map<BuildingPhase, double> distributeArchitectureByPhase({
+    required ProjectCategory category,
+    required double builtUpArea,
+    required Map<BuildingPhase, ScopeMode> scope,
+    required double validationFactor,
+  }) {
+    final totalHours = calculateArchitectureHours(
+      category: category,
+      builtUpArea: builtUpArea,
+    );
+
+    return _applyPhaseDistribution(
+      totalHours: totalHours,
+      profile: architecturePhaseProfile,
+      scope: scope,
+      validationFactor: validationFactor,
+    );
+  }
+
+  static Map<BuildingPhase, double> distributeStructureByPhase({
+    required ProjectCategory category,
+    required double builtUpArea,
+    required Map<BuildingPhase, ScopeMode> scope,
+    required double validationFactor,
+  }) {
+    final totalHours = calculateStructureHours(
+      category: category,
+      builtUpArea: builtUpArea,
+    );
+
+    return _applyPhaseDistribution(
+      totalHours: totalHours,
+      profile: structurePhaseProfile,
+      scope: scope,
+      validationFactor: validationFactor,
+    );
+  }
+
+  static Map<BuildingPhase, double> distributeElectricalByPhase({
+    required ProjectCategory category,
+    required double builtUpArea,
+    required Map<BuildingPhase, ScopeMode> scope,
+    required double validationFactor,
+  }) {
+    final totalHours = calculateElectricalHours(
+      category: category,
+      builtUpArea: builtUpArea,
+    );
+
+    return _applyPhaseDistribution(
+      totalHours: totalHours,
+      profile: mepPhaseProfile,
+      scope: scope,
+      validationFactor: validationFactor,
+    );
+  }
+
+  static Map<BuildingPhase, double> distributePlumbingByPhase({
+    required ProjectCategory category,
+    required double builtUpArea,
+    required Map<BuildingPhase, ScopeMode> scope,
+    required double validationFactor,
+  }) {
+    final totalHours = calculatePlumbingHours(
+      category: category,
+      builtUpArea: builtUpArea,
+    );
+
+    return _applyPhaseDistribution(
+      totalHours: totalHours,
+      profile: mepPhaseProfile,
+      scope: scope,
+      validationFactor: validationFactor,
+    );
+  }
+
+  static Map<BuildingPhase, double> distributeHvacByPhase({
+    required ProjectCategory category,
+    required double builtUpArea,
+    required Map<BuildingPhase, ScopeMode> scope,
+    required double validationFactor,
+  }) {
+    final totalHours = calculateHvacHours(
+      category: category,
+      builtUpArea: builtUpArea,
+    );
+
+    return _applyPhaseDistribution(
+      totalHours: totalHours,
+      profile: mepPhaseProfile,
+      scope: scope,
+      validationFactor: validationFactor,
+    );
+  }
+
+  static Map<BuildingPhase, double> distributeQsByPhase({
+    required ProjectCategory category,
+    required double builtUpArea,
+    required Map<BuildingPhase, ScopeMode> scope,
+  }) {
+    final totalHours = calculateQsHours(
+      category: category,
+      builtUpArea: builtUpArea,
+    );
+
+    return _applyPhaseDistribution(
+      totalHours: totalHours,
+      profile: qsPhaseProfile,
+      scope: scope,
+      validationFactor: 1,
+    );
+  }
+
+  static Map<BuildingPhase, double> distributeIdByPhase({
+    required double idBuiltUpArea,
+    required Map<BuildingPhase, ScopeMode> scope,
+    required double validationFactor,
+  }) {
+    final totalHours = calculateIdHours(
+      idBuiltUpArea: idBuiltUpArea,
+    );
+
+    return _applyPhaseDistribution(
+      totalHours: totalHours,
+      profile: idPhaseProfile,
+      scope: scope,
+      validationFactor: validationFactor,
+    );
+  }
+
+  static Map<BuildingPhase, double> _applyPhaseDistribution({
+    required double totalHours,
+    required Map<BuildingPhase, double> profile,
+    required Map<BuildingPhase, ScopeMode> scope,
+    required double validationFactor,
+  }) {
+    final result = <BuildingPhase, double>{};
+
+    for (final phase in BuildingPhase.values) {
+      final phaseShare = profile[phase] ?? 0;
+      final scopeMode = scope[phase] ?? ScopeMode.off;
+      final rawHours = totalHours * phaseShare;
+
+      switch (scopeMode) {
+        case ScopeMode.full:
+          result[phase] = rawHours;
+          break;
+        case ScopeMode.validation:
+          result[phase] = rawHours * validationFactor;
+          break;
+        case ScopeMode.off:
+          result[phase] = 0;
+          break;
+      }
+    }
+
+    return result;
+  }
+
+  static double sumPhaseHours(Map<BuildingPhase, double> phaseHours) {
+    return phaseHours.values.fold(0, (sum, value) => sum + value);
   }
 }
